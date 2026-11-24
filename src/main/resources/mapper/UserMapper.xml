@@ -63,8 +63,11 @@
         LIMIT 1
     </select>
 
-    <select id="existsFollow" resultType="int">
-        SELECT COUNT(*) FROM user_follow
+    <update id="updatePasswordHash">
+        UPDATE app_user SET password_hash = #{passwordHash} WHERE id = #{id}
+    </update>
+
+    <select id="existsFollow" resultType="int">        SELECT COUNT(*) FROM user_follow
         WHERE follower_id = #{followerId} AND followee_id = #{followeeId}
     </select>
 

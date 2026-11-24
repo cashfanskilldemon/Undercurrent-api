@@ -37,3 +37,12 @@ mybatis:
 logging:
   level:
     com.undercurrent.mapper: debug              # 打印 SQL，上线可改 info
+
+app:
+  auth:
+    # 生产环境务必用 AUTH_SECRET 环境变量覆盖；改了密钥所有已签发 token 立即失效
+    secret: ${AUTH_SECRET:undercurrent-dev-secret-change-me}
+    # token 有效期（秒），默认 7 天
+    ttl-seconds: ${AUTH_TTL_SECONDS:604800}
+    # 是否继续信任手写的 X-User-Id 请求头（仅本地联调用，默认关闭）
+    allow-header-fallback: ${AUTH_ALLOW_HEADER_FALLBACK:false}

@@ -22,6 +22,9 @@ public interface UserMapper {
     /** 登录用：按 handle 取完整用户（含 password_hash / status），大小写不敏感 */
     User selectAuthByHandle(@Param("handle") String handle);
 
+    /** 登录成功后把旧格式密码重算成新算法 */
+    int updatePasswordHash(@Param("id") Long id, @Param("passwordHash") String passwordHash);
+
     int existsFollow(@Param("followerId") Long followerId, @Param("followeeId") Long followeeId);
 
     int insertFollow(@Param("followerId") Long followerId, @Param("followeeId") Long followeeId);

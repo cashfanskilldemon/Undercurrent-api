@@ -31,6 +31,10 @@ public class AuthService {
         if (user.getStatus() != null && user.getStatus() == 0) {
             throw new BusinessException(403, "账号已被禁用");
         }
+        // 旧格式（PBKDF2）或 BCrypt 代价因子偏低时，趁这次拿到明文密码顺手升级
+        if (PasswordHasher.needsUpgrade(user.getPasswordHash())) {
+            userMapper.updatePasswordHash(user.getId(), PasswordHasher.hash(password));
+        }
         return user.getId();
     }
 }

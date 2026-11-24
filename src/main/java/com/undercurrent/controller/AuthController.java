@@ -1,10 +1,11 @@
 package com.undercurrent.controller;
 
 import com.undercurrent.common.ApiResponse;
+import com.undercurrent.common.TokenService;
 import com.undercurrent.dto.LoginRequest;
 import com.undercurrent.service.AuthService;
 import com.undercurrent.service.UserService;
-import com.undercurrent.vo.UserProfileVO;
+import com.undercurrent.vo.LoginVO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,11 +20,20 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
+    private final TokenService tokenService;
 
-    /** 账号密码登录，成功后返回用户资料；前端拿 id 放进 X-User-Id 头继续后续请求 */
+    /**
+     * 账号密码登录：成功返回签名 token + 用户资料。
+     * 前端后续请求带 {@code Authorization: Bearer <token>}，不再依赖 X-User-Id。
+     */
     @PostMapping("/login")
-    public ApiResponse<UserProfileVO> login(@Valid @RequestBody LoginRequest request) {
+    public ApiResponse<LoginVO> login(@Valid @RequestBody LoginRequest request) {
         Long userId = authService.authenticate(request.getAccount(), request.getPassword());
-        return ApiResponse.ok(userService.detail(userId, userId));
+
+        LoginVO vo = new LoginVO();
+        vo.setToken(tokenService.issue(userId));
+        vo.setExpiresIn(tokenService.getTtlSeconds());
+        vo.setUser(userService.detail(userId, userId));
+        return ApiResponse.ok(vo);
     }
 }

@@ -133,12 +133,14 @@ node scripts/smoke.mjs http://127.0.0.1:8081    # 指定其它地址
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| POST | `/api/auth/login` | 账号密码登录，body `{ "account": "admin", "password": "..." }`，成功返回用户资料；失败返回 `code: 401` |
+| POST | `/api/auth/login` | 账号密码登录，body `{ "account": "admin", "password": "..." }`，成功返回 `{ token, expiresIn, user }`；失败 `code: 401` |
 
 - 账号即 `app_user.handle`（大小写不敏感），密码存在 `password_hash` 列。
-- 哈希算法：**PBKDF2-HMAC-SHA256**，120000 轮、16 字节随机盐，存储格式 `pbkdf2$迭代次数$盐(base64)$哈希(base64)`，实现见 `common/PasswordHasher`。
-- 演示账号：`admin` / `cashfans03`，由 `db/migration-auth-admin.sql` 写入（seed.sql 里也带了一份，重灌数据不会丢）。
-- 目前**不发 token**，登录成功后前端把返回的 `id` 继续放进 `X-User-Id` 头；接 JWT 时替换 `AuthController` 的返回体即可，业务代码不用动。
+- 哈希：**BCrypt，cost 12**（`spring-security-crypto`，只引这个 jar，不启用整套 Security 过滤链）；旧数据里的 `pbkdf2$...` 仍可校验，登录成功时自动重算成 BCrypt。
+- 登录成功后前端带 `Authorization: Bearer <token>`。token 是 **HMAC-SHA256 签名**的 `base64url(uid.exp).base64url(签名)`，无状态不落库，默认 7 天过期；改 `AUTH_SECRET` 即全部失效。
+- `TokenAuthFilter` 把 token 解出来的用户 id 注入成 `X-User-Id`，所以各 Controller 保持原样，无需改动。
+- 可用环境变量：`AUTH_SECRET`（必须改）、`AUTH_TTL_SECONDS`、`AUTH_ALLOW_HEADER_FALLBACK`。
+- 演示账号：`admin` / `cashfans03`，见 `db/migration-auth-admin.sql`（幂等），`seed.sql` 也带一份。
 
 ### 未登录怎么办
 
@@ -148,7 +150,13 @@ node scripts/smoke.mjs http://127.0.0.1:8081    # 指定其它地址
 curl -H "X-User-Id: 1" -X POST http://localhost:8080/api/threads/1/like
 ```
 
-不带该头时，`liked` / `saved` 恒为 `false`，点赞、通知等需要身份的接口返回 401。这是给前端联调用的临时方案，正式接入登录后换成 JWT 解析即可（改 `Controller` 里取 userId 的方式）。
+带 token 时以 token 为准；**不带 token 时 `X-User-Id` 默认不被信任**（`app.auth.allow-header-fallback` 默认 false），需要本地裸调接口时把它设成 `true`：
+
+```bash
+AUTH_ALLOW_HEADER_FALLBACK=true mvn spring-boot:run
+```
+
+未登录时 `liked` / `saved` 恒为 `false`，点赞、通知等需要身份的接口返回 401。
 
 ---
 
