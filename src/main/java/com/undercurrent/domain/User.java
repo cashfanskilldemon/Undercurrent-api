@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 public class User {
     private Long id;
     private String handle;
+    /** 手机号，手机号注册才有；登录时可用手机号代替账号 */
+    private String phone;
     private String nickname;
     private Integer avatarHue;
     private String city;

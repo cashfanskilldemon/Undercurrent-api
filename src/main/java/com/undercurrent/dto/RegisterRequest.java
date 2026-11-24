@@ -9,9 +9,13 @@ import lombok.Data;
 @Data
 public class RegisterRequest {
 
-    @NotBlank(message = "请输入账号")
-    @Pattern(regexp = "^[a-zA-Z0-9_.]{3,20}$", message = "账号为 3-20 位字母、数字、下划线或点")
+    /** 账号注册时必填；手机号注册时留空 */
+    @Pattern(regexp = "^$|^[a-zA-Z0-9_.]{3,20}$", message = "账号为 3-20 位字母、数字、下划线或点")
     private String account;
+
+    /** 手机号注册时必填（11 位大陆手机号）；账号注册时留空 */
+    @Pattern(regexp = "^$|^1[3-9]\\d{9}$", message = "请输入正确的手机号")
+    private String phone;
 
     @NotBlank(message = "请输入密码")
     @Size(min = 6, max = 64, message = "密码长度需为 6-64 位")

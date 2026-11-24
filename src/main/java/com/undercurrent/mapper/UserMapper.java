@@ -19,8 +19,8 @@ public interface UserMapper {
 
     UserProfileVO selectByHandle(@Param("handle") String handle, @Param("viewerId") Long viewerId);
 
-    /** 登录用：按 handle 取完整用户（含 password_hash / status），大小写不敏感 */
-    User selectAuthByHandle(@Param("handle") String handle);
+    /** 登录 / 找回密码用：账号（handle，大小写不敏感）或手机号都能查到 */
+    User selectAuthByAccount(@Param("account") String account);
 
     /** 登录成功后把旧格式密码重算成新算法 */
     int updatePasswordHash(@Param("id") Long id, @Param("passwordHash") String passwordHash);

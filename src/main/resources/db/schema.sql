@@ -19,6 +19,7 @@ DROP TABLE IF EXISTS app_user;
 CREATE TABLE app_user (
   id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
   handle          VARCHAR(50)     NOT NULL                COMMENT '唯一用户名，对应前端 @ghostwire',
+  phone           VARCHAR(20)         NULL                COMMENT '手机号，手机号注册的账号才有',
   nickname        VARCHAR(50)     NOT NULL                COMMENT '昵称，对应前端 name',
   avatar_hue      SMALLINT UNSIGNED NOT NULL DEFAULT 0    COMMENT '头像色相 0-360，前端据此生成色块',
   city            VARCHAR(50)         NULL                COMMENT '城市',
@@ -33,6 +34,7 @@ CREATE TABLE app_user (
   updated_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uk_handle (handle),
+  UNIQUE KEY uk_phone (phone),
   KEY idx_followers (followers_count DESC)
 ) ENGINE=InnoDB COMMENT='用户/音乐人';
 

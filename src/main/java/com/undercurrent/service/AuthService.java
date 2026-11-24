@@ -35,7 +35,7 @@ public class AuthService {
         // 已锁定直接拒绝，连密码都不校验
         loginAttemptService.assertNotLocked(key);
 
-        User user = userMapper.selectAuthByHandle(key);
+        User user = userMapper.selectAuthByAccount(key);
         boolean matched = user != null
                 && user.getPasswordHash() != null
                 && PasswordHasher.matches(password, user.getPasswordHash());
@@ -59,23 +59,43 @@ public class AuthService {
         return user.getId();
     }
 
-    /** 注册：账号即 handle，昵称留空则用账号，注册成功后可直接登录 */
+    /** 注册：支持「账号」或「手机号」两种方式，成功后可直接登录 */
     @Transactional
-    public Long register(String account, String password, String nickname) {
-        if (account == null || account.isBlank() || password == null || password.isEmpty()) {
-            throw new BusinessException(400, "请输入账号和密码");
+    public Long register(String account, String phone, String password, String nickname) {
+        if (password == null || password.length() < 6) {
+            throw new BusinessException(400, "密码至少 6 位");
         }
-        String handle = account.trim().toLowerCase();
-        if (userMapper.selectAuthByHandle(handle) != null) {
-            throw new BusinessException(409, "该账号已被注册");
-        }
-        if (handle.equals(password.toLowerCase())) {
-            throw new BusinessException(400, "密码不能和账号相同");
+
+        boolean byPhone = phone != null && !phone.isBlank();
+        String handle;
+        String normalizedPhone = null;
+
+        if (byPhone) {
+            normalizedPhone = phone.trim();
+            if (!normalizedPhone.matches("^1[3-9]\\d{9}$")) {
+                throw new BusinessException(400, "请输入正确的手机号");
+            }
+            if (userMapper.selectAuthByAccount(normalizedPhone) != null) {
+                throw new BusinessException(409, "该手机号已注册");
+            }
+            handle = generateHandle(normalizedPhone);
+        } else {
+            if (account == null || account.isBlank()) {
+                throw new BusinessException(400, "请输入手机号或账号");
+            }
+            handle = account.trim().toLowerCase();
+            if (userMapper.selectAuthByAccount(handle) != null) {
+                throw new BusinessException(409, "该账号已被注册");
+            }
+            if (handle.equals(password.toLowerCase())) {
+                throw new BusinessException(400, "密码不能和账号相同");
+            }
         }
 
         User user = new User();
         user.setHandle(handle);
-        user.setNickname(nickname == null || nickname.isBlank() ? handle : nickname.trim());
+        user.setPhone(normalizedPhone);
+        user.setNickname(resolveNickname(nickname, normalizedPhone, handle));
         user.setAvatarHue(ThreadLocalRandom.current().nextInt(0, 360));
         user.setRole("听众");
         user.setPasswordHash(PasswordHasher.hash(password));
@@ -88,6 +108,29 @@ public class AuthService {
         return id;
     }
 
+    /** 昵称：没填就按手机号后四位生成「乐迷1234」，账号注册则直接用账号 */
+    private String resolveNickname(String nickname, String phone, String handle) {
+        if (nickname != null && !nickname.isBlank()) {
+            return nickname.trim();
+        }
+        if (phone != null) {
+            return "乐迷" + phone.substring(phone.length() - 4);
+        }
+        return handle;
+    }
+
+    /** 手机号注册时自动生成 handle（如 u1234567），保证唯一，避免 @13800138000 这种难看的用户名 */
+    private String generateHandle(String phone) {
+        String tail = phone.substring(phone.length() - 4);
+        for (int i = 0; i < 8; i++) {
+            String candidate = "u" + tail + String.format("%03d", ThreadLocalRandom.current().nextInt(1000));
+            if (userMapper.selectAuthByAccount(candidate) == null) {
+                return candidate;
+            }
+        }
+        throw new BusinessException(500, "注册繁忙，请稍后重试");
+    }
+
     /**
      * 忘记密码：demo 环境没有邮件 / 短信服务，这里把申请写成一条站内通知发给所有管理员。
      * 无论账号是否存在都返回成功，避免被用来枚举账号。
@@ -97,7 +140,7 @@ public class AuthService {
         if (account == null || account.isBlank()) {
             throw new BusinessException(400, "请输入账号");
         }
-        User user = userMapper.selectAuthByHandle(account.trim());
+        User user = userMapper.selectAuthByAccount(account.trim());
         if (user == null) {
             return;
         }

@@ -39,7 +39,8 @@ public class AuthController {
     /** 注册：成功后直接返回 token，省一次登录 */
     @PostMapping("/register")
     public ApiResponse<LoginVO> register(@Valid @RequestBody RegisterRequest request) {
-        Long userId = authService.register(request.getAccount(), request.getPassword(), request.getNickname());
+        Long userId = authService.register(
+                request.getAccount(), request.getPhone(), request.getPassword(), request.getNickname());
         return ApiResponse.ok(loginResult(userId));
     }
 
