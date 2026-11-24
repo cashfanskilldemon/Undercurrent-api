@@ -5,6 +5,8 @@ import com.undercurrent.common.TokenService;
 import com.undercurrent.dto.ForgotPasswordRequest;
 import com.undercurrent.dto.LoginRequest;
 import com.undercurrent.dto.RegisterRequest;
+import com.undercurrent.dto.ResetPasswordRequest;
+import com.undercurrent.dto.SendSmsCodeRequest;
 import com.undercurrent.service.AuthService;
 import com.undercurrent.service.UserService;
 import com.undercurrent.vo.LoginVO;
@@ -23,6 +25,9 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+
+    @org.springframework.beans.factory.annotation.Value("${app.sms.expose-code:true}")
+    private boolean exposeSmsCode;
     private final UserService userService;
     private final TokenService tokenService;
 
@@ -39,9 +44,32 @@ public class AuthController {
     /** 注册：成功后直接返回 token，省一次登录 */
     @PostMapping("/register")
     public ApiResponse<LoginVO> register(@Valid @RequestBody RegisterRequest request) {
-        Long userId = authService.register(
-                request.getAccount(), request.getPhone(), request.getPassword(), request.getNickname());
+        Long userId = authService.register(request.getAccount(), request.getPhone(),
+                request.getPassword(), request.getNickname(), request.getSmsCode());
         return ApiResponse.ok(loginResult(userId));
+    }
+
+    /**
+     * 发送短信验证码。dev 环境把验证码一起返回，方便本地联调；
+     * 接入真实短信服务后把 app.sms.expose-code 关掉即可。
+     */
+    @PostMapping("/sms-code")
+    public ApiResponse<Map<String, Object>> sendSmsCode(@Valid @RequestBody SendSmsCodeRequest request) {
+        String code = authService.sendSmsCode(request.getPhone(), request.getScene());
+        Map<String, Object> data = new java.util.HashMap<>();
+        data.put("sent", true);
+        data.put("ttlMinutes", 5);
+        if (exposeSmsCode) {
+            data.put("devCode", code);
+        }
+        return ApiResponse.ok(data);
+    }
+
+    /** 手机号 + 验证码重置密码 */
+    @PostMapping("/reset-password")
+    public ApiResponse<Map<String, Object>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.getPhone(), request.getCode(), request.getNewPassword());
+        return ApiResponse.ok(Map.of("ok", true));
     }
 
     /**

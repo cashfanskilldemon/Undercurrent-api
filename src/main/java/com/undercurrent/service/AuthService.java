@@ -3,6 +3,7 @@ package com.undercurrent.service;
 import com.undercurrent.common.BusinessException;
 import com.undercurrent.common.LoginAttemptService;
 import com.undercurrent.common.PasswordHasher;
+import com.undercurrent.common.SmsCodeService;
 import com.undercurrent.domain.User;
 import com.undercurrent.mapper.NotificationMapper;
 import com.undercurrent.mapper.UserMapper;
@@ -21,6 +22,7 @@ public class AuthService {
     private final UserMapper userMapper;
     private final NotificationMapper notificationMapper;
     private final LoginAttemptService loginAttemptService;
+    private final SmsCodeService smsCodeService;
 
     /**
      * 校验账号密码，通过则返回用户 id。
@@ -61,7 +63,7 @@ public class AuthService {
 
     /** 注册：支持「账号」或「手机号」两种方式，成功后可直接登录 */
     @Transactional
-    public Long register(String account, String phone, String password, String nickname) {
+    public Long register(String account, String phone, String password, String nickname, String smsCode) {
         if (password == null || password.length() < 6) {
             throw new BusinessException(400, "密码至少 6 位");
         }
@@ -78,6 +80,8 @@ public class AuthService {
             if (userMapper.selectAuthByAccount(normalizedPhone) != null) {
                 throw new BusinessException(409, "该手机号已注册");
             }
+            // 手机号注册必须带验证码（账号注册不需要）
+            smsCodeService.verify(normalizedPhone, SmsCodeService.SCENE_REGISTER, smsCode);
             handle = generateHandle(normalizedPhone);
         } else {
             if (account == null || account.isBlank()) {
@@ -129,6 +133,28 @@ public class AuthService {
             }
         }
         throw new BusinessException(500, "注册繁忙，请稍后重试");
+    }
+
+    /** 用手机号 + 验证码重置密码；成功后清掉登录失败计数，旧 token 仍有效至过期（改密码不强制下线） */
+    @Transactional
+    public void resetPassword(String phone, String smsCode, String newPassword) {
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new BusinessException(400, "密码至少 6 位");
+        }
+        String normalized = phone.trim();
+        User user = userMapper.selectAuthByAccount(normalized);
+        if (user == null) {
+            throw new BusinessException(404, "该手机号未注册");
+        }
+        smsCodeService.verify(normalized, SmsCodeService.SCENE_RESET, smsCode);
+
+        userMapper.updatePasswordHash(user.getId(), PasswordHasher.hash(newPassword));
+        loginAttemptService.reset(user.getHandle());
+    }
+
+    /** 发送验证码（注册 / 重置密码），返回验证码供 dev 环境回显 */
+    public String sendSmsCode(String phone, String scene) {
+        return smsCodeService.send(phone.trim(), scene);
     }
 
     /**

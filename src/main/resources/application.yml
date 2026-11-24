@@ -50,3 +50,12 @@ app:
     login-max-attempts: ${AUTH_LOGIN_MAX_ATTEMPTS:5}
     login-lock-minutes: ${AUTH_LOGIN_LOCK_MINUTES:10}
     login-fail-window-minutes: ${AUTH_LOGIN_FAIL_WINDOW_MINUTES:30}
+  sms:
+    # dev：验证码只打后端日志；接阿里云 / 腾讯云后改成对应实现
+    provider: ${SMS_PROVIDER:dev}
+    # dev 环境把验证码回传给前端方便联调，**上线必须关掉**
+    expose-code: ${SMS_EXPOSE_CODE:true}
+    ttl-minutes: 5
+    resend-seconds: 60
+    daily-limit: 10
+    max-verify-attempts: 5

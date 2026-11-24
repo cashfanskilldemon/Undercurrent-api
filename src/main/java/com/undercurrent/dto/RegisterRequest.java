@@ -21,6 +21,10 @@ public class RegisterRequest {
     @Size(min = 6, max = 64, message = "密码长度需为 6-64 位")
     private String password;
 
+    /** 手机号注册时的短信验证码（账号注册不需要） */
+    @Pattern(regexp = "^$|^\\d{6}$", message = "验证码为 6 位数字")
+    private String smsCode;
+
     /** 昵称，留空则默认用账号 */
     @Size(max = 20, message = "昵称最多 20 个字")
     private String nickname;
