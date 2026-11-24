@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.undercurrent.mapper.UserMapper">
+
+    <resultMap id="UserProfileMap" type="com.undercurrent.vo.UserProfileVO">
+        <id property="id" column="id"/>
+        <result property="name" column="nickname"/>
+        <result property="handle" column="handle"/>
+        <result property="hue" column="avatar_hue"/>
+        <result property="city" column="city"/>
+        <result property="role" column="role"/>
+        <result property="bio" column="bio"/>
+        <result property="verified" column="verified"/>
+        <result property="followers" column="followers_count"/>
+        <result property="following" column="following_count"/>
+        <result property="followed" column="followed"/>
+        <result property="tracks" column="track_count"/>
+        <result property="threads" column="thread_count"/>
+    </resultMap>
+
+    <sql id="profileColumns">
+        u.id, u.nickname, u.handle, u.avatar_hue, u.city, u.role, u.bio,
+        u.verified, u.followers_count, u.following_count,
+        EXISTS(SELECT 1 FROM user_follow f WHERE f.follower_id = #{viewerId} AND f.followee_id = u.id) AS followed,
+        (SELECT COUNT(*) FROM track t WHERE t.artist_id = u.id) AS track_count,
+        (SELECT COUNT(*) FROM thread th WHERE th.author_id = u.id) AS thread_count
+    </sql>
+
+    <select id="selectSuggested" resultMap="UserProfileMap">
+        SELECT <include refid="profileColumns"/>
+        FROM app_user u
+        WHERE u.status = 1
+        <if test="viewerId != null">AND u.id != #{viewerId}</if>
+        <if test="keyword != null and keyword != ''">
+            AND (u.nickname LIKE CONCAT('%', #{keyword}, '%')
+                 OR u.handle LIKE CONCAT('%', #{keyword}, '%')
+                 OR u.city LIKE CONCAT('%', #{keyword}, '%')
+                 OR u.role LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY u.followers_count DESC, u.id
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectProfile" resultMap="UserProfileMap">
+        SELECT <include refid="profileColumns"/>
+        FROM app_user u
+        WHERE u.id = #{id} AND u.status = 1
+    </select>
+
+    <select id="selectByHandle" resultMap="UserProfileMap">
+        SELECT <include refid="profileColumns"/>
+        FROM app_user u
+        WHERE u.handle = #{handle} AND u.status = 1
+    </select>
+
+    <select id="existsFollow" resultType="int">
+        SELECT COUNT(*) FROM user_follow
+        WHERE follower_id = #{followerId} AND followee_id = #{followeeId}
+    </select>
+
+    <insert id="insertFollow">
+        INSERT IGNORE INTO user_follow (follower_id, followee_id) VALUES (#{followerId}, #{followeeId})
+    </insert>
+
+    <delete id="deleteFollow">
+        DELETE FROM user_follow WHERE follower_id = #{followerId} AND followee_id = #{followeeId}
+    </delete>
+
+    <update id="addFollowerCount">
+        UPDATE app_user SET followers_count = GREATEST(0, followers_count + #{delta}) WHERE id = #{id}
+    </update>
+
+    <update id="addFollowingCount">
+        UPDATE app_user SET following_count = GREATEST(0, following_count + #{delta}) WHERE id = #{id}
+    </update>
+
+    <select id="selectFolloweeIds" resultType="java.lang.Long">
+        SELECT followee_id FROM user_follow WHERE follower_id = #{followerId}
+    </select>
+
+</mapper>

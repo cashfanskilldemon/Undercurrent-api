@@ -1,0 +1,21 @@
+# 构建产物
+target/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+
+# 本地敏感配置（数据库账号密码，绝不进仓库）
+config/application.yml
+
+# 日志 / 系统文件
+logs/
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.undercurrent.mapper.TrackMapper">
+
+    <resultMap id="TrackVOMap" type="com.undercurrent.vo.TrackVO">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="bpm" column="bpm"/>
+        <result property="musicalKey" column="musical_key"/>
+        <result property="duration" column="duration_sec"/>
+        <result property="plays" column="plays"/>
+        <result property="likes" column="likes_count"/>
+        <result property="comments" column="comments_count"/>
+        <result property="cover" column="cover"/>
+        <result property="blurb" column="blurb"/>
+        <result property="spec" column="spec_json"/>
+        <result property="releasedAt" column="released_at"/>
+        <result property="genre" column="genre_name"/>
+        <result property="liked" column="liked"/>
+        <result property="tags" column="tags"
+                typeHandler="com.undercurrent.common.CsvListTypeHandler"/>
+        <association property="artist" javaType="com.undercurrent.vo.UserVO">
+            <id property="id" column="artist_id"/>
+            <result property="name" column="artist_name"/>
+            <result property="handle" column="artist_handle"/>
+            <result property="hue" column="artist_hue"/>
+            <result property="city" column="artist_city"/>
+            <result property="role" column="artist_role"/>
+            <result property="verified" column="artist_verified"/>
+            <result property="followers" column="artist_followers"/>
+        </association>
+    </resultMap>
+
+    <sql id="baseColumns">
+        t.id, t.title, t.bpm, t.musical_key, t.duration_sec, t.plays,
+        t.likes_count, t.comments_count, t.cover, t.blurb, t.spec_json, t.released_at,
+        g.name AS genre_name,
+        a.id AS artist_id, a.nickname AS artist_name, a.handle AS artist_handle,
+        a.avatar_hue AS artist_hue, a.city AS artist_city, a.role AS artist_role,
+        a.verified AS artist_verified, a.followers_count AS artist_followers,
+        (SELECT GROUP_CONCAT(tt.tag ORDER BY tt.tag) FROM track_tag tt WHERE tt.track_id = t.id) AS tags,
+        EXISTS(SELECT 1 FROM track_like lk WHERE lk.track_id = t.id AND lk.user_id = #{viewerId}) AS liked
+    </sql>
+
+    <sql id="baseFrom">
+        FROM track t
+        JOIN app_user a ON a.id = t.artist_id
+        LEFT JOIN genre g ON g.id = t.genre_id
+    </sql>
+
+    <sql id="listWhere">
+        <where>
+            <if test="genreId != null">AND t.genre_id = #{genreId}</if>
+            <if test="keyword != null and keyword != ''">
+                AND (t.title LIKE CONCAT('%', #{keyword}, '%')
+                     OR t.blurb LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectList" resultMap="TrackVOMap">
+        SELECT <include refid="baseColumns"/>
+        <include refid="baseFrom"/>
+        <include refid="listWhere"/>
+        <choose>
+            <when test="sort == 'plays'">ORDER BY t.plays DESC, t.id DESC</when>
+            <when test="sort == 'likes'">ORDER BY t.likes_count DESC, t.id DESC</when>
+            <otherwise>ORDER BY t.released_at DESC, t.id DESC</otherwise>
+        </choose>
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(*) FROM track t
+        <include refid="listWhere"/>
+    </select>
+
+    <select id="selectDetail" resultMap="TrackVOMap">
+        SELECT <include refid="baseColumns"/>
+        <include refid="baseFrom"/>
+        WHERE t.id = #{id}
+    </select>
+
+    <update id="addPlays">
+        UPDATE track SET plays = plays + 1 WHERE id = #{id}
+    </update>
+
+    <update id="addLikeCount">
+        UPDATE track SET likes_count = GREATEST(0, likes_count + #{delta}) WHERE id = #{id}
+    </update>
+
+    <insert id="insertLike">
+        INSERT IGNORE INTO track_like (user_id, track_id) VALUES (#{userId}, #{trackId})
+    </insert>
+
+    <delete id="deleteLike">
+        DELETE FROM track_like WHERE user_id = #{userId} AND track_id = #{trackId}
+    </delete>
+
+    <select id="existsLike" resultType="int">
+        SELECT COUNT(*) FROM track_like WHERE user_id = #{userId} AND track_id = #{trackId}
+    </select>
+
+    <select id="selectLikesCount" resultType="int">
+        SELECT likes_count FROM track WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.undercurrent.domain.Track"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO track (artist_id, title, genre_id, bpm, musical_key, duration_sec,
+                           cover, blurb, released_at)
+        VALUES (#{artistId}, #{title}, #{genreId}, #{bpm}, #{musicalKey}, #{durationSec},
+                #{cover}, #{blurb}, #{releasedAt})
+    </insert>
+
+    <insert id="insertTags">
+        INSERT INTO track_tag (track_id, tag) VALUES
+        <foreach collection="tags" item="tag" separator=",">
+            (#{trackId}, #{tag})
+        </foreach>
+    </insert>
+</mapper>

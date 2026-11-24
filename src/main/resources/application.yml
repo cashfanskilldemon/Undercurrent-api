@@ -1,0 +1,39 @@
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+spring:
+  application:
+    name: undercurrent-api
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 连接信息全部走环境变量，仓库里不留任何凭据。
+    # 本地开发可二选一：① 设 DB_URL / DB_USERNAME / DB_PASSWORD 环境变量；
+    # ② 复制 config/application.yml.example 为 config/application.yml 填真实值（已被 .gitignore 忽略，
+    #    外置 config/ 目录优先级高于 classpath，会覆盖这里的默认值）。
+    url: "${DB_URL:jdbc:mysql://localhost:3306/Undercurrent_test?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true}"
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_null
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.undercurrent.domain
+  configuration:
+    map-underscore-to-camel-case: true          # create_at -> createAt
+    default-fetch-size: 100
+    default-statement-timeout: 30
+
+logging:
+  level:
+    com.undercurrent.mapper: debug              # 打印 SQL，上线可改 info

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.undercurrent.mapper.MetaMapper">
+
+    <select id="selectGenres" resultType="string">
+        SELECT name FROM genre ORDER BY sort_order, id
+    </select>
+
+    <resultMap id="DictMap" type="com.undercurrent.domain.Dict">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="slug" column="slug"/>
+        <result property="sortOrder" column="sort_order"/>
+    </resultMap>
+
+    <select id="selectChannels" resultMap="DictMap">
+        SELECT id, name, slug, sort_order FROM channel ORDER BY sort_order, id
+    </select>
+
+    <select id="selectCategories" resultType="string">
+        SELECT name FROM plugin_category ORDER BY sort_order, id
+    </select>
+
+    <resultMap id="TagStatMap" type="com.undercurrent.vo.MetaVO$TagStatVO">
+        <result property="tag" column="tag"/>
+        <result property="posts" column="posts"/>
+    </resultMap>
+
+    <select id="selectTags" resultMap="TagStatMap">
+        SELECT tag, posts FROM tag_stat ORDER BY posts DESC LIMIT 30
+    </select>
+
+    <select id="findGenreIdByName" resultType="java.lang.Integer">
+        SELECT id FROM genre WHERE name = #{name} LIMIT 1
+    </select>
+
+    <select id="findChannelIdByName" resultType="java.lang.Integer">
+        SELECT id FROM channel WHERE name = #{name} LIMIT 1
+    </select>
+
+    <select id="findChannelIdBySlug" resultType="java.lang.Integer">
+        SELECT id FROM channel WHERE slug = #{slug} LIMIT 1
+    </select>
+
+    <select id="findCategoryIdByName" resultType="java.lang.Integer">
+        SELECT id FROM plugin_category WHERE name = #{name} LIMIT 1
+    </select>
+</mapper>

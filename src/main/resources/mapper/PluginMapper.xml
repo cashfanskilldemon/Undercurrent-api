@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.undercurrent.mapper.PluginMapper">
+
+    <resultMap id="PluginVOMap" type="com.undercurrent.vo.PluginVO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="price" column="price"/>
+        <result property="rating" column="rating"/>
+        <result property="reviews" column="reviews_count"/>
+        <result property="downloads" column="downloads"/>
+        <result property="version" column="version"/>
+        <result property="size" column="file_size"/>
+        <result property="hue" column="hue"/>
+        <result property="knobs" column="knobs"/>
+        <result property="tagline" column="tagline"/>
+        <result property="description" column="description"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="category" column="category_name"/>
+        <result property="formats" column="formats"
+                typeHandler="com.undercurrent.common.CsvListTypeHandler"/>
+        <result property="os" column="os"
+                typeHandler="com.undercurrent.common.CsvListTypeHandler"/>
+        <association property="maker" javaType="com.undercurrent.vo.UserVO">
+            <id property="id" column="maker_id"/>
+            <result property="name" column="maker_name"/>
+            <result property="handle" column="maker_handle"/>
+            <result property="hue" column="maker_hue"/>
+            <result property="verified" column="maker_verified"/>
+        </association>
+    </resultMap>
+
+    <sql id="baseColumns">
+        p.id, p.name, p.price, p.rating, p.reviews_count, p.downloads,
+        p.formats, p.os, p.version, p.file_size, p.hue, p.knobs,
+        p.tagline, p.description, p.updated_at,
+        c.name AS category_name,
+        a.id AS maker_id, a.nickname AS maker_name, a.handle AS maker_handle,
+        a.avatar_hue AS maker_hue, a.verified AS maker_verified
+    </sql>
+
+    <sql id="baseFrom">
+        FROM plugin p
+        JOIN app_user a ON a.id = p.maker_id
+        LEFT JOIN plugin_category c ON c.id = p.category_id
+    </sql>
+
+    <sql id="listWhere">
+        <where>
+            <if test="categoryId != null">AND p.category_id = #{categoryId}</if>
+            <if test="keyword != null and keyword != ''">
+                AND (p.name LIKE CONCAT('%', #{keyword}, '%')
+                     OR p.tagline LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectList" resultMap="PluginVOMap">
+        SELECT <include refid="baseColumns"/>
+        <include refid="baseFrom"/>
+        <include refid="listWhere"/>
+        ORDER BY p.downloads DESC, p.id DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(*) FROM plugin p
+        <include refid="listWhere"/>
+    </select>
+
+    <select id="selectDetail" resultMap="PluginVOMap">
+        SELECT <include refid="baseColumns"/>
+        <include refid="baseFrom"/>
+        WHERE p.id = #{id}
+    </select>
+</mapper>

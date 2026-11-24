@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.undercurrent.mapper.NotificationMapper">
+
+    <resultMap id="NotificationVOMap" type="com.undercurrent.vo.NotificationVO">
+        <id property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="body" column="body"/>
+        <result property="href" column="href"/>
+        <result property="read" column="is_read"/>
+        <result property="createdAt" column="created_at"/>
+        <association property="actor" javaType="com.undercurrent.vo.UserVO"
+                     notNullColumn="actor_id">
+            <id property="id" column="actor_id"/>
+            <result property="name" column="actor_name"/>
+            <result property="handle" column="actor_handle"/>
+            <result property="hue" column="actor_hue"/>
+            <result property="verified" column="actor_verified"/>
+        </association>
+    </resultMap>
+
+    <sql id="baseColumns">
+        n.id, n.type, n.body, n.href, n.is_read, n.created_at, n.actor_id,
+        a.nickname AS actor_name, a.handle AS actor_handle,
+        a.avatar_hue AS actor_hue, a.verified AS actor_verified
+    </sql>
+
+    <sql id="baseFrom">
+        FROM notification n
+        LEFT JOIN app_user a ON a.id = n.actor_id
+    </sql>
+
+    <select id="selectList" resultMap="NotificationVOMap">
+        SELECT <include refid="baseColumns"/>
+        <include refid="baseFrom"/>
+        WHERE n.recipient_id = #{recipientId}
+        ORDER BY n.created_at DESC, n.id DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(*) FROM notification WHERE recipient_id = #{recipientId}
+    </select>
+
+    <select id="countUnread" resultType="int">
+        SELECT COUNT(*) FROM notification
+        WHERE recipient_id = #{recipientId} AND is_read = 0
+    </select>
+
+    <update id="markRead">
+        UPDATE notification SET is_read = 1
+        WHERE id = #{id} AND recipient_id = #{recipientId}
+    </update>
+
+    <update id="markAllRead">
+        UPDATE notification SET is_read = 1
+        WHERE recipient_id = #{recipientId} AND is_read = 0
+    </update>
+
+    <select id="existsOwned" resultType="int">
+        SELECT COUNT(*) FROM notification
+        WHERE id = #{id} AND recipient_id = #{recipientId}
+    </select>
+
+</mapper>
