@@ -25,6 +25,12 @@ public interface UserMapper {
     /** 登录成功后把旧格式密码重算成新算法 */
     int updatePasswordHash(@Param("id") Long id, @Param("passwordHash") String passwordHash);
 
+    /** 注册：插入新用户，回填自增 id */
+    int insertUser(User user);
+
+    /** 所有管理员 id，忘记密码申请要发给他们 */
+    java.util.List<Long> selectAdminIds();
+
     int existsFollow(@Param("followerId") Long followerId, @Param("followeeId") Long followeeId);
 
     int insertFollow(@Param("followerId") Long followerId, @Param("followeeId") Long followeeId);

@@ -58,6 +58,11 @@
         WHERE recipient_id = #{recipientId} AND is_read = 0
     </update>
 
+    <insert id="insert">
+        INSERT INTO notification (recipient_id, actor_id, type, body, href, is_read)
+        VALUES (#{recipientId}, #{actorId}, #{type}, #{body}, #{href}, 0)
+    </insert>
+
     <select id="existsOwned" resultType="int">
         SELECT COUNT(*) FROM notification
         WHERE id = #{id} AND recipient_id = #{recipientId}

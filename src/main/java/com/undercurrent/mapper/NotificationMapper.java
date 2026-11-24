@@ -23,4 +23,11 @@ public interface NotificationMapper {
     int markAllRead(@Param("recipientId") Long recipientId);
 
     int existsOwned(@Param("recipientId") Long recipientId, @Param("id") Long id);
+
+    /** 站内通知写入（忘记密码申请等） */
+    int insert(@Param("recipientId") Long recipientId,
+               @Param("actorId") Long actorId,
+               @Param("type") String type,
+               @Param("body") String body,
+               @Param("href") String href);
 }

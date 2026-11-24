@@ -63,6 +63,18 @@
         LIMIT 1
     </select>
 
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.undercurrent.domain.User">
+        INSERT INTO app_user (handle, nickname, avatar_hue, city, role, bio,
+                              followers_count, following_count, verified, password_hash, status)
+        VALUES (#{handle}, #{nickname}, #{avatarHue}, #{city}, #{role}, #{bio},
+                COALESCE(#{followersCount}, 0), COALESCE(#{followingCount}, 0), 0, #{passwordHash}, 1)
+    </insert>
+
+    <select id="selectAdminIds" resultType="java.lang.Long">
+        SELECT id FROM app_user WHERE role = '管理员' AND status = 1
+    </select>
+
     <update id="updatePasswordHash">
         UPDATE app_user SET password_hash = #{passwordHash} WHERE id = #{id}
     </update>

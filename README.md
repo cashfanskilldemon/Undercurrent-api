@@ -134,6 +134,8 @@ node scripts/smoke.mjs http://127.0.0.1:8081    # 指定其它地址
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | POST | `/api/auth/login` | 账号密码登录，body `{ "account": "admin", "password": "..." }`，成功返回 `{ token, expiresIn, user }`；失败 `code: 401` |
+| POST | `/api/auth/register` | 注册，body `{ "account": "...", "password": "...", "nickname": "选填" }`；账号 3-20 位字母/数字/下划线/点，密码 6-64 位；重复账号 `code: 409`；成功直接返回 token |
+| POST | `/api/auth/forgot-password` | 忘记密码，body `{ "account": "..." }`；**不暴露账号是否存在**，存在则给所有管理员写一条站内通知，由人工重置 |
 
 - 账号即 `app_user.handle`（大小写不敏感），密码存在 `password_hash` 列。
 - 哈希：**BCrypt，cost 12**（`spring-security-crypto`，只引这个 jar，不启用整套 Security 过滤链）；旧数据里的 `pbkdf2$...` 仍可校验，登录成功时自动重算成 BCrypt。
