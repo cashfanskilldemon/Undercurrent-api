@@ -139,7 +139,8 @@ node scripts/smoke.mjs http://127.0.0.1:8081    # 指定其它地址
 - 哈希：**BCrypt，cost 12**（`spring-security-crypto`，只引这个 jar，不启用整套 Security 过滤链）；旧数据里的 `pbkdf2$...` 仍可校验，登录成功时自动重算成 BCrypt。
 - 登录成功后前端带 `Authorization: Bearer <token>`。token 是 **HMAC-SHA256 签名**的 `base64url(uid.exp).base64url(签名)`，无状态不落库，默认 7 天过期；改 `AUTH_SECRET` 即全部失效。
 - `TokenAuthFilter` 把 token 解出来的用户 id 注入成 `X-User-Id`，所以各 Controller 保持原样，无需改动。
-- 可用环境变量：`AUTH_SECRET`（必须改）、`AUTH_TTL_SECONDS`、`AUTH_ALLOW_HEADER_FALLBACK`。
+- **防爆破**：同一账号连续失败 5 次锁定 10 分钟（30 分钟没有新失败则重新计数），锁定期间直接返回 `code: 429`，不校验密码。计数在内存（`common/LoginAttemptService`），单机够用，多实例部署时把计数换成 Redis 即可。
+- 可用环境变量：`AUTH_SECRET`（必须改）、`AUTH_TTL_SECONDS`、`AUTH_ALLOW_HEADER_FALLBACK`、`AUTH_LOGIN_MAX_ATTEMPTS`、`AUTH_LOGIN_LOCK_MINUTES`、`AUTH_LOGIN_FAIL_WINDOW_MINUTES`。
 - 演示账号：`admin` / `cashfans03`，见 `db/migration-auth-admin.sql`（幂等），`seed.sql` 也带一份。
 
 ### 未登录怎么办

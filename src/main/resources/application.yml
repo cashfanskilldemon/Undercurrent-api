@@ -46,3 +46,7 @@ app:
     ttl-seconds: ${AUTH_TTL_SECONDS:604800}
     # 是否继续信任手写的 X-User-Id 请求头（仅本地联调用，默认关闭）
     allow-header-fallback: ${AUTH_ALLOW_HEADER_FALLBACK:false}
+    # 防爆破：同一账号连续失败 5 次锁定 10 分钟（30 分钟没有新失败则重新计数）
+    login-max-attempts: ${AUTH_LOGIN_MAX_ATTEMPTS:5}
+    login-lock-minutes: ${AUTH_LOGIN_LOCK_MINUTES:10}
+    login-fail-window-minutes: ${AUTH_LOGIN_FAIL_WINDOW_MINUTES:30}
