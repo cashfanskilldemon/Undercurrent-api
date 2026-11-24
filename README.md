@@ -18,6 +18,8 @@ mysql -h 127.0.0.1 -u root -p --default-character-set=utf8mb4 < src/main/resourc
 
 `seed.sql` 就是前端现在看到的那份演示内容，字段一一对应。相对时间（"2 小时前"）已转成基于 `NOW()` 的绝对时间。
 
+管理员账号（`admin` / `cashfans03`）已包含在 `seed.sql` 里；已有库想单独补，执行 `src/main/resources/db/migration-auth-admin.sql` 即可（幂等）。
+
 > 想重新灌数据直接重跑 `seed.sql`，开头有 `TRUNCATE`。
 >
 > `--default-character-set=utf8mb4` 别省，否则中文会变问号。用 Navicat / DataGrip 的话直接打开 SQL 文件执行即可。
@@ -127,6 +129,17 @@ node scripts/smoke.mjs http://127.0.0.1:8081    # 指定其它地址
 | GET | `/api/plugins/{id}` | 插件详情 |
 | GET | `/api/meta` | 一次拿到流派 / 频道 / 插件分类 / 热门标签 |
 
+### 鉴权
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| POST | `/api/auth/login` | 账号密码登录，body `{ "account": "admin", "password": "..." }`，成功返回用户资料；失败返回 `code: 401` |
+
+- 账号即 `app_user.handle`（大小写不敏感），密码存在 `password_hash` 列。
+- 哈希算法：**PBKDF2-HMAC-SHA256**，120000 轮、16 字节随机盐，存储格式 `pbkdf2$迭代次数$盐(base64)$哈希(base64)`，实现见 `common/PasswordHasher`。
+- 演示账号：`admin` / `cashfans03`，由 `db/migration-auth-admin.sql` 写入（seed.sql 里也带了一份，重灌数据不会丢）。
+- 目前**不发 token**，登录成功后前端把返回的 `id` 继续放进 `X-User-Id` 头；接 JWT 时替换 `AuthController` 的返回体即可，业务代码不用动。
+
 ### 未登录怎么办
 
 `userId` 从请求头 `X-User-Id` 取：
@@ -135,7 +148,7 @@ node scripts/smoke.mjs http://127.0.0.1:8081    # 指定其它地址
 curl -H "X-User-Id: 1" -X POST http://localhost:8080/api/threads/1/like
 ```
 
-不带该头时，`liked` / `saved` 恒为 `false`，点赞接口返回 401。这是给前端联调用的临时方案，正式接入登录后换成 JWT 解析即可（改 `Controller` 里取 userId 的方式）。
+不带该头时，`liked` / `saved` 恒为 `false`，点赞、通知等需要身份的接口返回 401。这是给前端联调用的临时方案，正式接入登录后换成 JWT 解析即可（改 `Controller` 里取 userId 的方式）。
 
 ---
 

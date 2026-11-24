@@ -47,6 +47,9 @@ INSERT INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_co
 INSERT INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_count, verified, created_at) VALUES (9, 'scallion', '小葱拌豆腐', 100, '长沙', '听众', 211, 0, NOW());
 INSERT INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_count, verified, created_at) VALUES (10, 'exit_two', 'DJ 二号口', 200, '武汉', '听众', 893, 0, NOW());
 
+-- 管理员账号：admin / cashfans03（PBKDF2-HMAC-SHA256，120000 轮）
+INSERT INTO app_user (handle, nickname, avatar_hue, city, role, bio, followers_count, following_count, verified, password_hash, status) VALUES ('admin', '管理员', 122, '乌鲁木齐', '管理员', '站点管理员账号', 128, 12, 1, 'pbkdf2$120000$WPVuFmiuUxldPZu3PB06oQ==$a/aQkRSXHXCBKcfHHnkJNa/bNwILMisMpASkxkXhSKE=', 1);
+
 -- 作品
 INSERT INTO track (id, artist_id, title, genre_id, bpm, musical_key, duration_sec, plays, likes_count, comments_count, cover, blurb, spec_json, released_at) VALUES (1, 1, '地铁末班', 1, 88, 'F 小调', 207, 48213, 3127, 214, 'cover-1.png', '录在二号线最后一班车上的环境声，鼓是 SP-404 里切的老唱片。', '{"bpm":88,"swing":0.16,"kick":"x.....x...x.....","snare":"....x.......x...","hat":"x.x.x.x.x.x.x.xx","bass":[0,null,null,null,null,null,-2,null,null,null,3,null,null,null,null,null],"root":41,"bassWave":"triangle","chord":[0,3,7,10]}', DATE_SUB(NOW(), INTERVAL 3 DAY));
 INSERT INTO track (id, artist_id, title, genre_id, bpm, musical_key, duration_sec, plays, likes_count, comments_count, cover, blurb, spec_json, released_at) VALUES (2, 2, 'PAD 7', 5, 132, 'G 小调', 244, 21904, 1688, 97, 'cover-2.png', '一整首只用 MPC 第七个垫子的声音，做成了两步车库。', '{"bpm":132,"swing":0.22,"kick":"x.........x.....","snare":"....x.......x...","hat":"..x...x...x...xx","bass":[0,null,null,0,null,null,5,null,null,null,3,null,7,null,null,null],"root":43,"bassWave":"sawtooth"}', DATE_SUB(NOW(), INTERVAL 1 WEEK));

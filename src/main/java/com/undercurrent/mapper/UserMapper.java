@@ -1,5 +1,6 @@
 package com.undercurrent.mapper;
 
+import com.undercurrent.domain.User;
 import com.undercurrent.vo.UserProfileVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -17,6 +18,9 @@ public interface UserMapper {
     UserProfileVO selectProfile(@Param("id") Long id, @Param("viewerId") Long viewerId);
 
     UserProfileVO selectByHandle(@Param("handle") String handle, @Param("viewerId") Long viewerId);
+
+    /** 登录用：按 handle 取完整用户（含 password_hash / status），大小写不敏感 */
+    User selectAuthByHandle(@Param("handle") String handle);
 
     int existsFollow(@Param("followerId") Long followerId, @Param("followeeId") Long followeeId);
 

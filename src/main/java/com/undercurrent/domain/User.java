@@ -17,6 +17,8 @@ public class User {
     private Integer followersCount;
     private Integer followingCount;
     private Boolean verified;
+    /** PBKDF2 哈希，格式 pbkdf2$迭代$盐$哈希；不参与任何出参序列化 */
+    private String passwordHash;
     private Integer status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

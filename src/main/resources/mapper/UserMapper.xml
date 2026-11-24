@@ -54,6 +54,15 @@
         WHERE u.handle = #{handle} AND u.status = 1
     </select>
 
+    <!-- 登录：不过滤 status，交给 Service 区分「密码错」和「账号禁用」 -->
+    <select id="selectAuthByHandle" resultType="com.undercurrent.domain.User">
+        SELECT id, handle, nickname, avatar_hue, city, role, bio,
+               followers_count, following_count, verified, password_hash, status
+        FROM app_user
+        WHERE LOWER(handle) = LOWER(#{handle})
+        LIMIT 1
+    </select>
+
     <select id="existsFollow" resultType="int">
         SELECT COUNT(*) FROM user_follow
         WHERE follower_id = #{followerId} AND followee_id = #{followeeId}
