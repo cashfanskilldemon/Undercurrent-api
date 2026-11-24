@@ -30,6 +30,10 @@ mysql -h 127.0.0.1 -u root -p --default-character-set=utf8mb4 < src/main/resourc
 
 ## 二、配置与启动
 
+> 启动时会执行一次 `SELECT 1` 预热连接池（`config/DataSourceWarmup`）。Hikari 是懒加载的，
+> 如果把它留到第一个请求，网络慢的时候首次建连实测要 16 秒，前端 15 秒超时就先断开了。
+> 预热把这部分耗时挪到启动阶段，日志会打印「数据库连接预热完成，耗时 xxx ms」。
+
 仓库里**不含任何数据库凭据**。`src/main/resources/application.yml` 的默认值是「本地 3306 / root / 空密码」，全部可被环境变量覆盖：
 
 | 环境变量 | 默认值 |
