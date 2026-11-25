@@ -24,7 +24,7 @@
         u.verified, u.followers_count, u.following_count,
         EXISTS(SELECT 1 FROM user_follow f WHERE f.follower_id = #{viewerId} AND f.followee_id = u.id) AS followed,
         (SELECT COUNT(*) FROM track t WHERE t.artist_id = u.id) AS track_count,
-        (SELECT COUNT(*) FROM thread th WHERE th.author_id = u.id) AS thread_count
+        (SELECT COUNT(*) FROM post th WHERE th.author_id = u.id) AS thread_count
     </sql>
 
     <select id="selectSuggested" resultMap="UserProfileMap">

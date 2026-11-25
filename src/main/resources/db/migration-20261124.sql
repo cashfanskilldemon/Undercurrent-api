@@ -9,10 +9,10 @@ USE Undercurrent_test;
 -- 1) 帖子配图字段（MySQL 5.7/8 均支持；列已存在则跳过）
 SET @col_exists = (
   SELECT COUNT(*) FROM information_schema.COLUMNS
-  WHERE TABLE_SCHEMA = 'Undercurrent_test' AND TABLE_NAME = 'thread' AND COLUMN_NAME = 'image'
+  WHERE TABLE_SCHEMA = 'Undercurrent_test' AND TABLE_NAME = 'post' AND COLUMN_NAME = 'image'
 );
 SET @sql = IF(@col_exists = 0,
-  'ALTER TABLE thread ADD COLUMN image VARCHAR(120) NULL COMMENT ''发帖配图文件名'' AFTER attachment_track_id',
+  'ALTER TABLE post ADD COLUMN image VARCHAR(120) NULL COMMENT ''发帖配图文件名'' AFTER attachment_track_id',
   'SELECT 1');
 PREPARE stmt FROM @sql;
 EXECUTE stmt;

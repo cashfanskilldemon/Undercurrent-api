@@ -1,18 +1,18 @@
 package com.undercurrent.mapper;
 
-import com.undercurrent.domain.Thread;
+import com.undercurrent.domain.Post;
 import com.undercurrent.vo.ReplyVO;
-import com.undercurrent.vo.ThreadVO;
+import com.undercurrent.vo.PostVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 @Mapper
-public interface ThreadMapper {
+public interface PostMapper {
 
     /** 列表：支持按频道、关键词、标签过滤；viewerId 用于标记 liked/saved 与关注流 */
-    List<ThreadVO> selectList(@Param("channelId") Integer channelId,
+    List<PostVO> selectList(@Param("channelId") Integer channelId,
                               @Param("keyword") String keyword,
                               @Param("tag") String tag,
                               @Param("viewerId") Long viewerId,
@@ -26,11 +26,11 @@ public interface ThreadMapper {
                    @Param("viewerId") Long viewerId,
                    @Param("following") Boolean following);
 
-    ThreadVO selectDetail(@Param("id") Long id, @Param("viewerId") Long viewerId);
+    PostVO selectDetail(@Param("id") Long id, @Param("viewerId") Long viewerId);
 
     List<ReplyVO> selectReplies(@Param("threadId") Long threadId, @Param("viewerId") Long viewerId);
 
-    int insert(Thread thread);
+    int insert(Post thread);
 
     int insertTags(@Param("threadId") Long threadId, @Param("tags") List<String> tags);
 

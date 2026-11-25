@@ -2,9 +2,9 @@
 USE Undercurrent_test;
 
 SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE thread_like; TRUNCATE TABLE thread_save; TRUNCATE TABLE track_like;
-TRUNCATE TABLE reply_like; TRUNCATE TABLE user_follow; TRUNCATE TABLE thread_reply;
-TRUNCATE TABLE thread_tag; TRUNCATE TABLE thread; TRUNCATE TABLE track_tag;
+TRUNCATE TABLE post_like; TRUNCATE TABLE post_save; TRUNCATE TABLE track_like;
+TRUNCATE TABLE reply_like; TRUNCATE TABLE user_follow; TRUNCATE TABLE post_reply;
+TRUNCATE TABLE post_tag; TRUNCATE TABLE post; TRUNCATE TABLE track_tag;
 TRUNCATE TABLE track; TRUNCATE TABLE plugin; TRUNCATE TABLE app_user;
 TRUNCATE TABLE genre; TRUNCATE TABLE channel; TRUNCATE TABLE plugin_category;
 TRUNCATE TABLE tag_stat; TRUNCATE TABLE notification;
@@ -94,42 +94,42 @@ INSERT INTO plugin (id, maker_id, name, category_id, price, rating, reviews_coun
 INSERT INTO plugin (id, maker_id, name, category_id, price, rating, reviews_count, downloads, formats, os, version, file_size, hue, knobs, tagline, description, updated_at) VALUES (8, 5, '城中村 Field Recordings', 4, 0, 4.8, 122, 7651, 'WAV', 'Win,Mac,Linux', '1.0', '640 MB', 85, 0, '广州城中村 90 段环境录音', '早茶店、摩托车、楼道里的电视声。CC0 授权，随便用。', DATE_SUB(NOW(), INTERVAL 3 WEEK));
 
 -- 帖子
-INSERT INTO thread (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (1, 1, 1, '新歌《地铁末班》上线了。鼓全是从一张 80 年代的磁带里切的，低频我总觉得有点糊，有懂混音的兄弟帮听一下 0:42 那段吗？', 286, 41, 3, 1, 'track', 1, DATE_SUB(NOW(), INTERVAL 2 HOUR));
-INSERT INTO thread (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (2, 3, 3, '说个可能得罪人的观点：地下圈子用采样不清版权，等歌火了再被下架，最后吃亏的还是自己。我现在宁愿花钱买清过的采样包。大家都怎么处理的？', 512, 97, 3, 0, NULL, NULL, DATE_SUB(NOW(), INTERVAL 4 HOUR));
-INSERT INTO thread (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (3, 7, 4, 'Soot 1.4.2 更新了：修了 Ableton 12 里自动化跳变的问题，新加了一个「破旧随身听」磁头。免费的，插件区直接下。', 194, 58, 1, 0, 'plugin', NULL, DATE_SUB(NOW(), INTERVAL 6 HOUR));
-INSERT INTO thread (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (4, 6, 5, '下周六杭州有一场地下室 showcase，五个本地 MC 加两个 beatmaker 现场切。场地只能塞 120 人，想来的在下面留城市，我统计一下要不要加场。', 341, 120, 2, 0, NULL, NULL, NOW());
-INSERT INTO thread (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (5, 2, 2, 'UK bass 的 sub 到底该压到多少 LUFS？我把《PAD 7》推到 -8 之后在手机外放上完全听不到低音了，退回 -11 又觉得不够劲。', 127, 14, 1, 0, 'track', 2, NOW());
-INSERT INTO thread (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (6, 4, 6, '今天在潘家园收了一箱磁带，老板说是一个 90 年代电台主持人的私藏。里面有好多没见过的本地乐队，准备慢慢数字化，有兴趣的可以一起听。', 89, 11, 0, 0, NULL, NULL, DATE_SUB(NOW(), INTERVAL 2 DAY));
-INSERT INTO thread (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (7, 5, 1, '尝试了一首 72 BPM 的 dub，全程没有量化，延迟反馈手动拧的。这种不完美大家能接受吗，还是听起来就是不专业？', 76, 6, 1, 0, 'track', 5, DATE_SUB(NOW(), INTERVAL 3 DAY));
+INSERT INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (1, 1, 1, '新歌《地铁末班》上线了。鼓全是从一张 80 年代的磁带里切的，低频我总觉得有点糊，有懂混音的兄弟帮听一下 0:42 那段吗？', 286, 41, 3, 1, 'track', 1, DATE_SUB(NOW(), INTERVAL 2 HOUR));
+INSERT INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (2, 3, 3, '说个可能得罪人的观点：地下圈子用采样不清版权，等歌火了再被下架，最后吃亏的还是自己。我现在宁愿花钱买清过的采样包。大家都怎么处理的？', 512, 97, 3, 0, NULL, NULL, DATE_SUB(NOW(), INTERVAL 4 HOUR));
+INSERT INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (3, 7, 4, 'Soot 1.4.2 更新了：修了 Ableton 12 里自动化跳变的问题，新加了一个「破旧随身听」磁头。免费的，插件区直接下。', 194, 58, 1, 0, 'plugin', NULL, DATE_SUB(NOW(), INTERVAL 6 HOUR));
+INSERT INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (4, 6, 5, '下周六杭州有一场地下室 showcase，五个本地 MC 加两个 beatmaker 现场切。场地只能塞 120 人，想来的在下面留城市，我统计一下要不要加场。', 341, 120, 2, 0, NULL, NULL, NOW());
+INSERT INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (5, 2, 2, 'UK bass 的 sub 到底该压到多少 LUFS？我把《PAD 7》推到 -8 之后在手机外放上完全听不到低音了，退回 -11 又觉得不够劲。', 127, 14, 1, 0, 'track', 2, NOW());
+INSERT INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (6, 4, 6, '今天在潘家园收了一箱磁带，老板说是一个 90 年代电台主持人的私藏。里面有好多没见过的本地乐队，准备慢慢数字化，有兴趣的可以一起听。', 89, 11, 0, 0, NULL, NULL, DATE_SUB(NOW(), INTERVAL 2 DAY));
+INSERT INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (7, 5, 1, '尝试了一首 72 BPM 的 dub，全程没有量化，延迟反馈手动拧的。这种不完美大家能接受吗，还是听起来就是不专业？', 76, 6, 1, 0, 'track', 5, DATE_SUB(NOW(), INTERVAL 3 DAY));
 
 -- 帖子标签
-INSERT INTO thread_tag (thread_id, tag) VALUES (1, '求反馈');
-INSERT INTO thread_tag (thread_id, tag) VALUES (1, 'boombap');
-INSERT INTO thread_tag (thread_id, tag) VALUES (2, '版权');
-INSERT INTO thread_tag (thread_id, tag) VALUES (2, '采样');
-INSERT INTO thread_tag (thread_id, tag) VALUES (3, '插件更新');
-INSERT INTO thread_tag (thread_id, tag) VALUES (3, '免费');
-INSERT INTO thread_tag (thread_id, tag) VALUES (4, '演出');
-INSERT INTO thread_tag (thread_id, tag) VALUES (4, '杭州');
-INSERT INTO thread_tag (thread_id, tag) VALUES (5, '母带');
-INSERT INTO thread_tag (thread_id, tag) VALUES (5, 'LUFS');
-INSERT INTO thread_tag (thread_id, tag) VALUES (6, '磁带');
-INSERT INTO thread_tag (thread_id, tag) VALUES (6, '挖碟');
-INSERT INTO thread_tag (thread_id, tag) VALUES (7, 'dub');
-INSERT INTO thread_tag (thread_id, tag) VALUES (7, '求反馈');
+INSERT INTO post_tag (thread_id, tag) VALUES (1, '求反馈');
+INSERT INTO post_tag (thread_id, tag) VALUES (1, 'boombap');
+INSERT INTO post_tag (thread_id, tag) VALUES (2, '版权');
+INSERT INTO post_tag (thread_id, tag) VALUES (2, '采样');
+INSERT INTO post_tag (thread_id, tag) VALUES (3, '插件更新');
+INSERT INTO post_tag (thread_id, tag) VALUES (3, '免费');
+INSERT INTO post_tag (thread_id, tag) VALUES (4, '演出');
+INSERT INTO post_tag (thread_id, tag) VALUES (4, '杭州');
+INSERT INTO post_tag (thread_id, tag) VALUES (5, '母带');
+INSERT INTO post_tag (thread_id, tag) VALUES (5, 'LUFS');
+INSERT INTO post_tag (thread_id, tag) VALUES (6, '磁带');
+INSERT INTO post_tag (thread_id, tag) VALUES (6, '挖碟');
+INSERT INTO post_tag (thread_id, tag) VALUES (7, 'dub');
+INSERT INTO post_tag (thread_id, tag) VALUES (7, '求反馈');
 
 -- 回复
-INSERT INTO thread_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (1, 1, 5, '0:42 底鼓和贝斯在 60Hz 打架了，试试给贝斯做一个跟底鼓的侧链，或者底鼓往 50Hz 挪一点。', 48, DATE_SUB(NOW(), INTERVAL 1 HOUR));
-INSERT INTO thread_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (2, 1, 4, '磁带的那层嘶声太好听了，别降噪。', 31, DATE_SUB(NOW(), INTERVAL 58 MINUTE));
-INSERT INTO thread_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (3, 1, 9, '通勤路上循环第五遍了', 12, DATE_SUB(NOW(), INTERVAL 22 MINUTE));
-INSERT INTO thread_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (4, 2, 8, '同意。我们做《旧货市场》系列就是因为被下架过两次，一段段去找版权方谈的。', 88, DATE_SUB(NOW(), INTERVAL 3 HOUR));
-INSERT INTO thread_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (5, 2, 2, '小样随便采，正式发行前一定要清。这是底线。', 64, DATE_SUB(NOW(), INTERVAL 3 HOUR));
-INSERT INTO thread_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (6, 2, 10, '能不能出一个版权清理的教程帖，置顶那种', 27, DATE_SUB(NOW(), INTERVAL 2 HOUR));
-INSERT INTO thread_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (7, 3, 1, '老焊工yyds，新磁头放在鼓总线上直接出味道。', 22, DATE_SUB(NOW(), INTERVAL 5 HOUR));
-INSERT INTO thread_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (8, 4, 10, '武汉，坐高铁过去！', 9, NOW());
-INSERT INTO thread_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (9, 4, 9, '长沙 +1，求加场', 6, NOW());
-INSERT INTO thread_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (10, 5, 5, '手机外放本来就放不出 60Hz 以下，加一点 120Hz 左右的谐波失真让耳朵「脑补」出低音。', 53, NOW());
-INSERT INTO thread_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (11, 7, 1, '地下要什么专业，这就是味道。', 19, DATE_SUB(NOW(), INTERVAL 3 DAY));
+INSERT INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (1, 1, 5, '0:42 底鼓和贝斯在 60Hz 打架了，试试给贝斯做一个跟底鼓的侧链，或者底鼓往 50Hz 挪一点。', 48, DATE_SUB(NOW(), INTERVAL 1 HOUR));
+INSERT INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (2, 1, 4, '磁带的那层嘶声太好听了，别降噪。', 31, DATE_SUB(NOW(), INTERVAL 58 MINUTE));
+INSERT INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (3, 1, 9, '通勤路上循环第五遍了', 12, DATE_SUB(NOW(), INTERVAL 22 MINUTE));
+INSERT INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (4, 2, 8, '同意。我们做《旧货市场》系列就是因为被下架过两次，一段段去找版权方谈的。', 88, DATE_SUB(NOW(), INTERVAL 3 HOUR));
+INSERT INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (5, 2, 2, '小样随便采，正式发行前一定要清。这是底线。', 64, DATE_SUB(NOW(), INTERVAL 3 HOUR));
+INSERT INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (6, 2, 10, '能不能出一个版权清理的教程帖，置顶那种', 27, DATE_SUB(NOW(), INTERVAL 2 HOUR));
+INSERT INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (7, 3, 1, '老焊工yyds，新磁头放在鼓总线上直接出味道。', 22, DATE_SUB(NOW(), INTERVAL 5 HOUR));
+INSERT INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (8, 4, 10, '武汉，坐高铁过去！', 9, NOW());
+INSERT INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (9, 4, 9, '长沙 +1，求加场', 6, NOW());
+INSERT INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (10, 5, 5, '手机外放本来就放不出 60Hz 以下，加一点 120Hz 左右的谐波失真让耳朵「脑补」出低音。', 53, NOW());
+INSERT INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (11, 7, 1, '地下要什么专业，这就是味道。', 19, DATE_SUB(NOW(), INTERVAL 3 DAY));
 
 -- 标签热度
 INSERT INTO tag_stat (tag, posts) VALUES ('求反馈', 1284);

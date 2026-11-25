@@ -8,7 +8,7 @@ import java.util.List;
 
 /** 讨论列表 / 详情 */
 @Data
-public class ThreadVO {
+public class PostVO {
 
     private Long id;
     private UserVO author;

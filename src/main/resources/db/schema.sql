@@ -137,8 +137,8 @@ CREATE TABLE plugin (
 -- ------------------------------------------------------------
 -- 5. 讨论帖 / 标签 / 回复
 -- ------------------------------------------------------------
-DROP TABLE IF EXISTS thread;
-CREATE TABLE thread (
+DROP TABLE IF EXISTS post;
+CREATE TABLE post (
   id                  BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   author_id           BIGINT UNSIGNED NOT NULL,
   channel_id          SMALLINT UNSIGNED NOT NULL,
@@ -158,16 +158,16 @@ CREATE TABLE thread (
   KEY idx_pin_time (pinned DESC, created_at DESC)
 ) ENGINE=InnoDB COMMENT='讨论帖';
 
-DROP TABLE IF EXISTS thread_tag;
-CREATE TABLE thread_tag (
+DROP TABLE IF EXISTS post_tag;
+CREATE TABLE post_tag (
   thread_id BIGINT UNSIGNED NOT NULL,
   tag       VARCHAR(30)     NOT NULL,
   PRIMARY KEY (thread_id, tag),
   KEY idx_tag (tag)
 ) ENGINE=InnoDB COMMENT='帖子标签';
 
-DROP TABLE IF EXISTS thread_reply;
-CREATE TABLE thread_reply (
+DROP TABLE IF EXISTS post_reply;
+CREATE TABLE post_reply (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   thread_id   BIGINT UNSIGNED NOT NULL,
   author_id   BIGINT UNSIGNED NOT NULL,
@@ -184,8 +184,8 @@ CREATE TABLE thread_reply (
 -- ------------------------------------------------------------
 -- 6. 互动关系（联合主键天然去重）
 -- ------------------------------------------------------------
-DROP TABLE IF EXISTS thread_like;
-CREATE TABLE thread_like (
+DROP TABLE IF EXISTS post_like;
+CREATE TABLE post_like (
   user_id    BIGINT UNSIGNED NOT NULL,
   thread_id  BIGINT UNSIGNED NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -193,8 +193,8 @@ CREATE TABLE thread_like (
   KEY idx_thread (thread_id)
 ) ENGINE=InnoDB COMMENT='帖子点赞';
 
-DROP TABLE IF EXISTS thread_save;
-CREATE TABLE thread_save (
+DROP TABLE IF EXISTS post_save;
+CREATE TABLE post_save (
   user_id    BIGINT UNSIGNED NOT NULL,
   thread_id  BIGINT UNSIGNED NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -256,3 +256,47 @@ CREATE TABLE notification (
   PRIMARY KEY (id),
   KEY idx_recipient_time (recipient_id, is_read, created_at DESC)
 ) ENGINE=InnoDB COMMENT='站内通知';
+
+-- ------------------------------------------------------------
+-- 9. 私信会话（两人一条，user_a < user_b 由应用层规范化）
+-- ------------------------------------------------------------
+DROP TABLE IF EXISTS conversation;
+CREATE TABLE conversation (
+  id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_a          BIGINT UNSIGNED NOT NULL COMMENT '参与者A（较小 id）',
+  user_b          BIGINT UNSIGNED NOT NULL COMMENT '参与者B（较大 id）',
+  last_message_at DATETIME            NULL COMMENT '最后一条消息时间，会话列表排序',
+  created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_pair (user_a, user_b),
+  KEY idx_user_a (user_a, last_message_at),
+  KEY idx_user_b (user_b, last_message_at)
+) ENGINE=InnoDB COMMENT='私信会话';
+
+-- ------------------------------------------------------------
+-- 10. 私信消息
+-- ------------------------------------------------------------
+DROP TABLE IF EXISTS direct_message;
+CREATE TABLE direct_message (
+  id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  conversation_id BIGINT UNSIGNED NOT NULL COMMENT '所属会话 id',
+  sender_id       BIGINT UNSIGNED NOT NULL COMMENT '发送者 id',
+  content         VARCHAR(1000)   NOT NULL COMMENT '消息正文',
+  is_read         TINYINT(1)      NOT NULL DEFAULT 0 COMMENT '0未读 1已读',
+  created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_conversation (conversation_id, id),
+  KEY idx_sender (sender_id)
+) ENGINE=InnoDB COMMENT='私信消息';
+
+-- ------------------------------------------------------------
+-- 11. 用户拉黑（联合主键天然防重复）
+-- ------------------------------------------------------------
+DROP TABLE IF EXISTS user_block;
+CREATE TABLE user_block (
+  blocker_id  BIGINT UNSIGNED NOT NULL COMMENT '拉黑者 id',
+  blocked_id  BIGINT UNSIGNED NOT NULL COMMENT '被拉黑者 id',
+  created_at  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (blocker_id, blocked_id),
+  KEY idx_blocked (blocked_id)
+) ENGINE=InnoDB COMMENT='用户拉黑关系';

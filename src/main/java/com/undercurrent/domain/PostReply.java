@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 /** 帖子回复 */
 @Data
-public class ThreadReply {
+public class PostReply {
     private Long id;
     private Long threadId;
     private Long authorId;

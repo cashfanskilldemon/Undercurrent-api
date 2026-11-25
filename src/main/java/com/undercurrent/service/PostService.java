@@ -2,11 +2,11 @@ package com.undercurrent.service;
 
 import com.undercurrent.common.BusinessException;
 import com.undercurrent.common.PageResult;
-import com.undercurrent.domain.Thread;
-import com.undercurrent.dto.CreateThreadRequest;
+import com.undercurrent.domain.Post;
+import com.undercurrent.dto.CreatePostRequest;
 import com.undercurrent.mapper.MetaMapper;
-import com.undercurrent.mapper.ThreadMapper;
-import com.undercurrent.vo.ThreadVO;
+import com.undercurrent.mapper.PostMapper;
+import com.undercurrent.vo.PostVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +17,9 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class ThreadService {
+public class PostService {
 
-    private final ThreadMapper threadMapper;
+    private final PostMapper postMapper;
     private final MetaMapper metaMapper;
 
     /** 频道名或 slug 解析成 id；「全部」或空返回 null 表示不过滤 */
@@ -37,33 +37,33 @@ public class ThreadService {
         return id;
     }
 
-    public PageResult<ThreadVO> list(String channel, String keyword, String tag,
+    public PageResult<PostVO> list(String channel, String keyword, String tag,
                                      Long viewerId, int page, int size) {
         return list(channel, keyword, tag, viewerId, false, page, size);
     }
 
     /** 关注流：onlyFollowing=true 时只返回自己与已关注作者的帖子 */
-    public PageResult<ThreadVO> list(String channel, String keyword, String tag,
+    public PageResult<PostVO> list(String channel, String keyword, String tag,
                                      Long viewerId, boolean onlyFollowing, int page, int size) {
         Integer channelId = resolveChannel(channel);
         int offset = Math.max(0, (page - 1) * size);
-        List<ThreadVO> rows = threadMapper.selectList(channelId, keyword, tag,
+        List<PostVO> rows = postMapper.selectList(channelId, keyword, tag,
                 viewerId, onlyFollowing, offset, size);
-        long total = threadMapper.countList(channelId, keyword, tag, viewerId, onlyFollowing);
+        long total = postMapper.countList(channelId, keyword, tag, viewerId, onlyFollowing);
         return PageResult.of(rows, total, page, size);
     }
 
-    public ThreadVO detail(Long id, Long viewerId) {
-        ThreadVO vo = threadMapper.selectDetail(id, viewerId);
+    public PostVO detail(Long id, Long viewerId) {
+        PostVO vo = postMapper.selectDetail(id, viewerId);
         if (vo == null) {
             throw BusinessException.notFound("帖子");
         }
-        vo.setReplies(threadMapper.selectReplies(id, viewerId));
+        vo.setReplies(postMapper.selectReplies(id, viewerId));
         return vo;
     }
 
     @Transactional
-    public ThreadVO create(CreateThreadRequest req, Long authorId) {
+    public PostVO create(CreatePostRequest req, Long authorId) {
         if (authorId == null) {
             throw new BusinessException(401, "请先登录");
         }
@@ -72,7 +72,7 @@ public class ThreadService {
             throw new BusinessException(400, "发帖必须指定频道");
         }
 
-        Thread t = new Thread();
+        Post t = new Post();
         t.setAuthorId(authorId);
         t.setChannelId(channelId);
         t.setBody(req.getBody());
@@ -80,10 +80,10 @@ public class ThreadService {
         t.setAttachmentKind(req.getAttachmentKind());
         t.setAttachmentTrackId(req.getAttachmentTrackId());
         t.setImage(req.getImage());
-        threadMapper.insert(t);
+        postMapper.insert(t);
 
         if (req.getTags() != null && !req.getTags().isEmpty()) {
-            threadMapper.insertTags(t.getId(), req.getTags());
+            postMapper.insertTags(t.getId(), req.getTags());
         }
         return detail(t.getId(), authorId);
     }
@@ -94,20 +94,20 @@ public class ThreadService {
         if (userId == null) {
             throw new BusinessException(401, "请先登录");
         }
-        if (threadMapper.selectLikesCount(threadId) == null) {
+        if (postMapper.selectLikesCount(threadId) == null) {
             throw BusinessException.notFound("帖子");
         }
-        boolean liked = threadMapper.existsLike(userId, threadId) > 0;
+        boolean liked = postMapper.existsLike(userId, threadId) > 0;
         if (liked) {
-            threadMapper.deleteLike(userId, threadId);
-            threadMapper.addLikeCount(threadId, -1);
+            postMapper.deleteLike(userId, threadId);
+            postMapper.addLikeCount(threadId, -1);
         } else {
-            threadMapper.insertLike(userId, threadId);
-            threadMapper.addLikeCount(threadId, 1);
+            postMapper.insertLike(userId, threadId);
+            postMapper.addLikeCount(threadId, 1);
         }
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("liked", !liked);
-        r.put("likes", threadMapper.selectLikesCount(threadId));
+        r.put("likes", postMapper.selectLikesCount(threadId));
         return r;
     }
 
@@ -117,11 +117,11 @@ public class ThreadService {
         if (userId == null) {
             throw new BusinessException(401, "请先登录");
         }
-        boolean saved = threadMapper.existsSave(userId, threadId) > 0;
+        boolean saved = postMapper.existsSave(userId, threadId) > 0;
         if (saved) {
-            threadMapper.deleteSave(userId, threadId);
+            postMapper.deleteSave(userId, threadId);
         } else {
-            threadMapper.insertSave(userId, threadId);
+            postMapper.insertSave(userId, threadId);
         }
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("saved", !saved);

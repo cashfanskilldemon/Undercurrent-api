@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.undercurrent.mapper.ThreadMapper">
+<mapper namespace="com.undercurrent.mapper.PostMapper">
 
-    <resultMap id="ThreadVOMap" type="com.undercurrent.vo.ThreadVO">
+    <resultMap id="ThreadVOMap" type="com.undercurrent.vo.PostVO">
         <id property="id" column="id"/>
         <result property="body" column="body"/>
         <result property="likes" column="likes_count"/>
@@ -28,11 +28,11 @@
             <result property="followers" column="author_followers"/>
         </association>
         <!-- 无附件时 attachment_kind 为 null，不创建对象 -->
-        <association property="attachment" javaType="com.undercurrent.vo.ThreadVO$Attachment"
+        <association property="attachment" javaType="com.undercurrent.vo.PostVO$Attachment"
                      notNullColumn="attachment_kind">
             <result property="kind" column="attachment_kind"/>
             <result property="trackId" column="attachment_track_id"/>
-            <association property="track" javaType="com.undercurrent.vo.ThreadVO$TrackBrief"
+            <association property="track" javaType="com.undercurrent.vo.PostVO$TrackBrief"
                          notNullColumn="att_title">
                 <id property="id" column="attachment_track_id"/>
                 <result property="title" column="att_title"/>
@@ -50,15 +50,15 @@
         a.id AS author_id, a.nickname AS author_name, a.handle AS author_handle,
         a.avatar_hue AS author_hue, a.city AS author_city, a.role AS author_role,
         a.verified AS author_verified, a.followers_count AS author_followers,
-        (SELECT GROUP_CONCAT(tt.tag ORDER BY tt.tag) FROM thread_tag tt WHERE tt.thread_id = t.id) AS tags,
-        EXISTS(SELECT 1 FROM thread_like lk WHERE lk.thread_id = t.id AND lk.user_id = #{viewerId}) AS liked,
-        EXISTS(SELECT 1 FROM thread_save sv WHERE sv.thread_id = t.id AND sv.user_id = #{viewerId}) AS saved,
+        (SELECT GROUP_CONCAT(tt.tag ORDER BY tt.tag) FROM post_tag tt WHERE tt.thread_id = t.id) AS tags,
+        EXISTS(SELECT 1 FROM post_like lk WHERE lk.thread_id = t.id AND lk.user_id = #{viewerId}) AS liked,
+        EXISTS(SELECT 1 FROM post_save sv WHERE sv.thread_id = t.id AND sv.user_id = #{viewerId}) AS saved,
         tr.title AS att_title, tr.cover AS att_cover,
         tr.duration_sec AS att_duration, tr.bpm AS att_bpm
     </sql>
 
     <sql id="baseFrom">
-        FROM thread t
+        FROM post t
         JOIN app_user a ON a.id = t.author_id
         JOIN channel c ON c.id = t.channel_id
         LEFT JOIN track tr ON tr.id = t.attachment_track_id
@@ -71,7 +71,7 @@
                 AND t.body LIKE CONCAT('%', #{keyword}, '%')
             </if>
             <if test="tag != null and tag != ''">
-                AND EXISTS(SELECT 1 FROM thread_tag tt2 WHERE tt2.thread_id = t.id AND tt2.tag = #{tag})
+                AND EXISTS(SELECT 1 FROM post_tag tt2 WHERE tt2.thread_id = t.id AND tt2.tag = #{tag})
             </if>
             <if test="following != null and following and viewerId != null">
                 AND (t.author_id = #{viewerId}
@@ -91,7 +91,7 @@
 
     <select id="countList" resultType="long">
         SELECT COUNT(*)
-        FROM thread t
+        FROM post t
         <include refid="listWhere"/>
     </select>
 
@@ -125,58 +125,58 @@
                a.avatar_hue AS author_hue, a.city AS author_city, a.role AS author_role,
                a.verified AS author_verified,
                EXISTS(SELECT 1 FROM reply_like rl WHERE rl.reply_id = r.id AND rl.user_id = #{viewerId}) AS liked
-        FROM thread_reply r
+        FROM post_reply r
         JOIN app_user a ON a.id = r.author_id
         WHERE r.thread_id = #{threadId}
         ORDER BY r.created_at ASC
     </select>
 
-    <insert id="insert" parameterType="com.undercurrent.domain.Thread"
+    <insert id="insert" parameterType="com.undercurrent.domain.Post"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO thread (author_id, channel_id, body, pinned, attachment_kind, attachment_track_id, image)
+        INSERT INTO post (author_id, channel_id, body, pinned, attachment_kind, attachment_track_id, image)
         VALUES (#{authorId}, #{channelId}, #{body}, #{pinned}, #{attachmentKind}, #{attachmentTrackId}, #{image})
     </insert>
 
     <insert id="insertTags">
-        INSERT INTO thread_tag (thread_id, tag) VALUES
+        INSERT INTO post_tag (thread_id, tag) VALUES
         <foreach collection="tags" item="tag" separator=",">
             (#{threadId}, #{tag})
         </foreach>
     </insert>
 
     <update id="addLikeCount">
-        UPDATE thread SET likes_count = GREATEST(0, likes_count + #{delta}) WHERE id = #{id}
+        UPDATE post SET likes_count = GREATEST(0, likes_count + #{delta}) WHERE id = #{id}
     </update>
 
     <update id="addReplyCount">
-        UPDATE thread SET replies_count = GREATEST(0, replies_count + #{delta}) WHERE id = #{id}
+        UPDATE post SET replies_count = GREATEST(0, replies_count + #{delta}) WHERE id = #{id}
     </update>
 
     <insert id="insertLike">
-        INSERT IGNORE INTO thread_like (user_id, thread_id) VALUES (#{userId}, #{threadId})
+        INSERT IGNORE INTO post_like (user_id, thread_id) VALUES (#{userId}, #{threadId})
     </insert>
 
     <delete id="deleteLike">
-        DELETE FROM thread_like WHERE user_id = #{userId} AND thread_id = #{threadId}
+        DELETE FROM post_like WHERE user_id = #{userId} AND thread_id = #{threadId}
     </delete>
 
     <select id="existsLike" resultType="int">
-        SELECT COUNT(*) FROM thread_like WHERE user_id = #{userId} AND thread_id = #{threadId}
+        SELECT COUNT(*) FROM post_like WHERE user_id = #{userId} AND thread_id = #{threadId}
     </select>
 
     <insert id="insertSave">
-        INSERT IGNORE INTO thread_save (user_id, thread_id) VALUES (#{userId}, #{threadId})
+        INSERT IGNORE INTO post_save (user_id, thread_id) VALUES (#{userId}, #{threadId})
     </insert>
 
     <delete id="deleteSave">
-        DELETE FROM thread_save WHERE user_id = #{userId} AND thread_id = #{threadId}
+        DELETE FROM post_save WHERE user_id = #{userId} AND thread_id = #{threadId}
     </delete>
 
     <select id="selectLikesCount" resultType="int">
-        SELECT likes_count FROM thread WHERE id = #{id}
+        SELECT likes_count FROM post WHERE id = #{id}
     </select>
 
     <select id="existsSave" resultType="int">
-        SELECT COUNT(*) FROM thread_save WHERE user_id = #{userId} AND thread_id = #{threadId}
+        SELECT COUNT(*) FROM post_save WHERE user_id = #{userId} AND thread_id = #{threadId}
     </select>
 </mapper>

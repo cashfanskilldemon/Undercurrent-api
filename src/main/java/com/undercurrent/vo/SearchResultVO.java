@@ -10,7 +10,7 @@ public class SearchResultVO {
     private String q;
     private List<UserProfileVO> users;
     private List<TrackVO> tracks;
-    private List<ThreadVO> threads;
+    private List<PostVO> threads;
     private List<PluginVO> plugins;
 
     /** 结果总数（Jackson 会序列化为 total 字段） */

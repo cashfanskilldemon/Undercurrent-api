@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 /** 讨论帖 */
 @Data
-public class Thread {
+public class Post {
     private Long id;
     private Long authorId;
     private Integer channelId;

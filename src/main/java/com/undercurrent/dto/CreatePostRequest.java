@@ -8,7 +8,7 @@ import java.util.List;
 
 /** 发帖请求 */
 @Data
-public class CreateThreadRequest {
+public class CreatePostRequest {
 
     @NotBlank(message = "频道不能为空")
     private String channel;

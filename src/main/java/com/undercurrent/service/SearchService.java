@@ -11,7 +11,7 @@ public class SearchService {
 
     private final UserService userService;
     private final TrackService trackService;
-    private final ThreadService threadService;
+    private final PostService postService;
     private final PluginService pluginService;
 
     public SearchResultVO search(String q, Long viewerId, int limit) {
@@ -22,7 +22,7 @@ public class SearchService {
         r.setQ(keyword == null ? "" : keyword);
         r.setUsers(userService.suggested(viewerId, keyword, n));
         r.setTracks(trackService.list(null, keyword, "plays", viewerId, 1, n).getList());
-        r.setThreads(threadService.list(null, keyword, null, viewerId, 1, n).getList());
+        r.setThreads(postService.list(null, keyword, null, viewerId, 1, n).getList());
         r.setPlugins(pluginService.list(null, keyword, 1, n).getList());
         return r;
     }
