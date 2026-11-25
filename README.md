@@ -1,40 +1,62 @@
-# Undercurrent 后端
+# Undercurrent API
 
-地下嘻哈 / 电子音乐社区的后端服务，对应前端 `Undercurrent-app`。
+地下嘻哈 / 电子音乐社区后端，为 [Undercurrent-app](https://github.com/cashfanskilldemon/Undercurrent-app) 提供接口：账号、讨论、作品、插件、搜索、通知与注册引导。
 
-**技术栈**：Java 21 · Spring Boot 3.4.2 · MyBatis 3.0.4 · MySQL（开发库 5.7.36，8.0 同样兼容）
+**技术栈**：Java 21 · Spring Boot 3.4.2 · MyBatis 3.0.4 · MySQL 5.7+ / H2（本地开发）
 
 ---
 
-## 一、建库（两条 SQL，按顺序执行）
+## 一、快速开始
+
+### 方式一：本地 H2（不需要安装 MySQL）
+
+项目内置 H2 文件库，激活 `local` profile 即可，建表与种子数据在启动时自动执行。
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+IDEA 用户在 Run Configuration 的 VM options 里加：
+
+```
+-Dspring.profiles.active=local
+```
+
+- 连接：`jdbc:h2:file:./.h2data/undercurrent;MODE=MySQL;...`，账号 `sa`、空密码
+- 数据文件：项目根目录 `.h2data/undercurrent.mv.db`（已 gitignore，重启不丢）
+- 建表脚本 `db/h2/schema.sql` 用 `CREATE TABLE IF NOT EXISTS`，种子 `db/h2/seed.sql` 用 `INSERT IGNORE`，每次启动只补齐缺失的表和数据，不覆盖已有行
+- 配置在 `config/application-local.yml`，外置目录优先级高于 classpath
+
+改动需要同步给团队时，用 `scripts/export_h2_to_mysql.py` 导出全量脚本，详见 `scripts/README-H2.md`。
+
+### 方式二：MySQL
 
 ```bash
 # 1. 建库建表（脚本内含 DROP TABLE，会清空重建）
 mysql -h 127.0.0.1 -u root -p --default-character-set=utf8mb4 < src/main/resources/db/schema.sql
 
-# 2. 灌入初始数据（10 位音乐人 / 8 首作品 / 8 个插件 / 7 篇帖子 / 11 条回复）
+# 2. 灌入演示数据（用户 / 流派 / 作品 / 插件 / 帖子 / 回复）
 mysql -h 127.0.0.1 -u root -p --default-character-set=utf8mb4 < src/main/resources/db/seed.sql
 ```
 
-`seed.sql` 就是前端现在看到的那份演示内容，字段一一对应。相对时间（"2 小时前"）已转成基于 `NOW()` 的绝对时间。
+`schema.sql` 已包含当前全部表；老库升级按日期顺序执行 `db/migration-*.sql`（均为幂等脚本）：
 
-管理员账号（`admin` / `cashfans03`）已包含在 `seed.sql` 里；已有库想单独补，执行 `src/main/resources/db/migration-auth-admin.sql` 即可（幂等）。
+| 顺序 | 脚本 | 内容 |
+|---|---|---|
+| 1 | `migration-20261124.sql` | 通知表、帖子配图字段、关注关系种子数据 |
+| 2 | `migration-auth-phone.sql` | 手机号字段（仅实名认证使用） |
+| 3 | `migration-auth-email.sql` | 邮箱注册 + 唯一索引 |
+| 4 | `migration-auth-admin.sql` | 管理员账号 `admin` / `cashfans03` |
+| 5 | `migration-genre-category.sql` | 流派扩容到 126 个并加分类 |
+| 6 | `migration-onboarding.sql` | 引导字段与 `user_interest` 表 |
+| 7 | `migration-social.sql` | 私信会话 / 消息 / 拉黑表 |
 
-> 想重新灌数据直接重跑 `seed.sql`，开头有 `TRUNCATE`。
->
-> `--default-character-set=utf8mb4` 别省，否则中文会变问号。用 Navicat / DataGrip 的话直接打开 SQL 文件执行即可。
+> 库名 `Undercurrent_test` 首字母大写，Linux 上 MySQL 区分大小写。
+> `--default-character-set=utf8mb4` 不要省略，否则中文会变问号。
 
-**关于 MySQL 5.7**：`schema.sql` 已按 5.7 兼容写（`utf8mb4_unicode_ci`，不用 8.0 才有的 `utf8mb4_0900_ai_ci`）。索引里的 `DESC` 在 5.7 会被解析但忽略，不影响功能，升到 8.0 后自动生效。
+### 连接配置
 
----
-
-## 二、配置与启动
-
-> 启动时会执行一次 `SELECT 1` 预热连接池（`config/DataSourceWarmup`）。Hikari 是懒加载的，
-> 如果把它留到第一个请求，网络慢的时候首次建连实测要 16 秒，前端 15 秒超时就先断开了。
-> 预热把这部分耗时挪到启动阶段，日志会打印「数据库连接预热完成，耗时 xxx ms」。
-
-仓库里**不含任何数据库凭据**。`src/main/resources/application.yml` 的默认值是「本地 3306 / root / 空密码」，全部可被环境变量覆盖：
+仓库不含任何数据库凭据，`application.yml` 的默认值是「本地 3306 / root / 空密码」，可用环境变量覆盖：
 
 | 环境变量 | 默认值 |
 |---|---|
@@ -42,28 +64,9 @@ mysql -h 127.0.0.1 -u root -p --default-character-set=utf8mb4 < src/main/resourc
 | `DB_USERNAME` | `root` |
 | `DB_PASSWORD` | 空 |
 
-本地开发任选一种方式填真实连接信息：
+也可以复制 `config/application.yml.example` 为 `config/application.yml` 后填写，该文件已被 gitignore。
 
-**方式一：外置配置文件（推荐，改完不用重启 IDE 配置）**
-
-```bash
-cp config/application.yml.example config/application.yml   # 再填 url / username / password
-```
-
-`config/` 在项目根目录时优先级高于 classpath，里面的值会覆盖 `application.yml` 的默认值；该文件已被 `.gitignore` 忽略，不会进仓库。
-
-**方式二：环境变量**
-
-```bash
-export DB_URL='jdbc:mysql://127.0.0.1:3306/Undercurrent_test?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai'
-export DB_USERNAME=root
-export DB_PASSWORD='你的密码'
-```
-
-> 库名 `Undercurrent_test` 首字母大写，Linux 上 MySQL 区分库名大小写，别写成 `undercurrent_test`。
-> 密码含 `$ < + ( )` 等特殊字符时，YAML 里要用单引号包住，否则 `$` 会被当变量。
-
-启动：
+### 启动与验证
 
 ```bash
 mvn spring-boot:run
@@ -71,35 +74,60 @@ mvn spring-boot:run
 mvn clean package -DskipTests && java -jar target/undercurrent-api-1.0.0.jar
 ```
 
-访问 `http://localhost:8080/api/meta` 能看到 JSON 就说明通了。
+访问 `http://localhost:8080/api/meta` 返回 JSON 即启动成功。
 
-> **需要 JDK 21**。如果你本机还是 17，把 `pom.xml` 的 `<java.version>` 改成 17 也能跑（代码没用到 21 专属语法，实测 17 编译通过）。
+启动时会执行一次 `SELECT 1` 预热连接池（`config/DataSourceWarmup`），避免首个请求承担建连耗时；日志打印「数据库连接预热完成」。
 
-改完代码想确认「接口 × 数据库」整条链路没坏，跑一遍冒烟：
-
-```bash
-node scripts/smoke.mjs                          # 默认 http://localhost:8080
-node scripts/smoke.mjs http://127.0.0.1:8081    # 指定其它地址
-```
-
-11 项检查，覆盖元数据 / 帖子列表 / 详情 / 频道过滤 / 点赞收藏开关 / 空正文校验 / 作品排序 / spec 透传 / 插件分类过滤。点赞收藏是成对调用的，跑完不留下脏数据；最后一行给出通过/失败数量，失败时退出码为 1。
-
-> 注意：业务异常（参数校验失败等）HTTP 状态仍是 200，失败信息在响应体 `code` 里——这是本项目约定的统一响应体风格，前端拦截器应判断 `data.code` 而不是 HTTP status。
+> JDK 21 为编译目标。本机只有 17 时把 `pom.xml` 的 `<java.version>` 改成 17 也能编译运行（未使用 21 专属语法）。
 
 ---
 
-## 三、API 清单
+## 二、配置项
 
-统一响应体：`{ "code": 0, "message": "ok", "data": ... }`，`code != 0` 即失败。
+| 变量 | 默认值 | 说明 |
+|---|---|---|
+| `AUTH_SECRET` | `undercurrent-dev-secret-change-me` | token 签名密钥，**上线必须修改**，改了之后所有已签发 token 失效 |
+| `AUTH_TTL_SECONDS` | `604800` | token 有效期（7 天） |
+| `AUTH_ALLOW_HEADER_FALLBACK` | `false` | 是否信任手写的 `X-User-Id`，仅本地裸调接口时打开 |
+| `AUTH_LOGIN_MAX_ATTEMPTS` | `5` | 连续失败锁定阈值 |
+| `AUTH_LOGIN_LOCK_MINUTES` | `10` | 锁定时长 |
+| `AUTH_LOGIN_FAIL_WINDOW_MINUTES` | `30` | 失败计数窗口 |
+| `EMAIL_PROVIDER` | `dev` | `dev` 只打日志；`smtp` 走真实邮件 |
+| `EMAIL_SMTP_HOST` / `PORT` / `USERNAME` / `PASSWORD` | `smtp.qq.com` / `465` / 空 | SMTP 连接信息 |
+| `EMAIL_FROM` | `UNDERCURRENT <no-reply@undercurrent.local>` | 发件人，需与 SMTP 账号一致 |
+| `SMS_PROVIDER` | `dev` | 短信通道，留给后续实名认证 |
+| `CODE_EXPOSE_CODE` | `true` | dev 下把验证码回传前端，**上线必须设为 false** |
 
-分页结构：`{ list: [], total, page, size, hasMore }`
+---
+
+## 三、通用约定
+
+统一响应体：
+
+```json
+{ "code": 0, "message": "ok", "data": {} }
+```
+
+`code != 0` 表示业务失败，HTTP 状态仍为 200，调用方应判断 `data.code` 或响应体 `code`。鉴权失败返回 `code: 401`，参数校验失败返回 `code: 400`，账号锁定返回 `code: 429`。
+
+分页结构：
+
+```json
+{ "list": [], "total": 42, "page": 1, "size": 20, "hasMore": true }
+```
+
+`page` 从 1 开始，`size` 上限 100。
+
+---
+
+## 四、API
 
 ### 讨论
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| GET | `/api/threads?channel=&keyword=&tag=&page=1&size=20` | 列表。`channel` 传"全部"或省略表示不过滤 |
-| GET | `/api/threads/{id}` | 详情，含 `replies` 数组 |
+| GET | `/api/threads?channel=&keyword=&tag=&following=&page=1&size=20` | 列表；`channel` 传「全部」或省略表示不过滤，`following=true` 只看关注的人 |
+| GET | `/api/threads/{id}` | 详情，含 `replies` |
 | POST | `/api/threads` | 发帖 |
 | POST | `/api/threads/{id}/like` | 点赞 / 取消，返回 `{liked, likes}` |
 | POST | `/api/threads/{id}/save` | 收藏 / 取消，返回 `{saved}` |
@@ -112,63 +140,131 @@ node scripts/smoke.mjs http://127.0.0.1:8081    # 指定其它地址
   "body": "正文内容",
   "tags": ["求反馈", "boombap"],
   "attachmentKind": "track",
-  "attachmentTrackId": 1
+  "attachmentTrackId": 1,
+  "image": "cover-1.png"
 }
 ```
+
+`channel`、`body` 必填；`tags` 最多 5 个；`body` 最多 5000 字。
 
 ### 作品
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | GET | `/api/tracks?genre=&keyword=&sort=latest\|plays\|likes&page=1&size=20` | 列表 |
-| GET | `/api/tracks/{id}` | 详情，`spec` 原样透传 JSON |
+| GET | `/api/tracks/{id}` | 详情，`spec` 原样透传为对象 |
+| POST | `/api/tracks` | 上传作品（只存元数据，不接收音频文件） |
 | POST | `/api/tracks/{id}/play` | 播放计数 +1 |
 | POST | `/api/tracks/{id}/like` | 点赞切换 |
 
-### 插件 / 元数据
+上传请求体：
+
+```json
+{
+  "title": "地铁末班",
+  "genre": "Boom Bap",
+  "bpm": 88,
+  "musicalKey": "F 小调",
+  "blurb": "录在末班车上的环境声",
+  "cover": "cover-1.png",
+  "tags": ["采样"]
+}
+```
+
+`title` 必填，`bpm` 范围 40–220，`blurb` 最多 500 字。
+
+### 插件与元数据
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | GET | `/api/plugins?category=&keyword=&page=1&size=20` | 插件列表 |
 | GET | `/api/plugins/{id}` | 插件详情 |
-| GET | `/api/meta` | 一次拿到流派 / 频道 / 插件分类 / 热门标签 |
+| GET | `/api/meta` | 流派 / 频道 / 插件分类 / 热门标签 |
+
+### 搜索
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| GET | `/api/search?q=&limit=8` | 一次返回艺人、作品、帖子、插件四组结果与总数；`q` 为空时返回默认推荐内容 |
+
+### 用户与关注
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| GET | `/api/users/suggested?q=&limit=12` | 推荐关注 / 艺人搜索 |
+| GET | `/api/users/{id}` | 用户资料 |
+| GET | `/api/users/by-handle/{handle}` | 按 handle 查资料 |
+| POST | `/api/users/{id}/follow` | 关注 / 取关切换 |
+
+### 通知
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| GET | `/api/notifications?page=1&size=50` | 通知列表，含未读数 |
+| POST | `/api/notifications/{id}/read` | 单条已读 |
+| POST | `/api/notifications/read-all` | 全部已读，返回 `{ok, changed}` |
+
+### 注册后引导
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| GET | `/api/onboarding` | 可选项 + 已选内容 + `needsOnboarding` |
+| POST | `/api/onboarding` | 提交或跳过，覆盖式保存 |
+
+```json
+{
+  "genres": ["Boom Bap", "Trap"],
+  "artistIds": [1, 2],
+  "role": "制作人",
+  "ageGroup": "25-30",
+  "city": "成都",
+  "skipped": false
+}
+```
+
+流派最多 12 个、艺人最多 30 个；`role` / `ageGroup` / `city` 必须是接口下发的选项之一。`skipped: true` 只标记引导已走过，不保存偏好。
 
 ### 鉴权
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| POST | `/api/auth/login` | 账号密码登录，body `{ "account": "admin", "password": "..." }`，成功返回 `{ token, expiresIn, user }`；失败 `code: 401` |
-| POST | `/api/auth/register` | 注册，body `{ "email": "...", "emailCode": "123456" }` 或 `{ "account": "..." }` + `password` + 选填 `nickname`；密码 6-64 位；重复 `code: 409`；成功直接返回 token |
-| POST | `/api/auth/email-code` | 发送邮箱验证码，body `{ "email": "...", "scene": "register\|reset" }`；60 秒内不可重发、每天 10 条上限；dev 环境返回 `devCode` 便于联调 |
-| POST | `/api/auth/reset-password` | 邮箱 + 验证码重置密码，body `{ "email", "code", "newPassword" }`，成功后清空登录失败计数 |
-| POST | `/api/auth/sms-code` | 短信验证码，body `{ "phone", "scene" }`；**注册登录不走短信**，留给后续手机号实名认证 |
-| POST | `/api/auth/forgot-password` | 忘记密码，body `{ "account": "..." }`；**不暴露账号是否存在**，存在则给所有管理员写一条站内通知，由人工重置 |
+| POST | `/api/auth/login` | 账号密码登录，`{account, password}`，返回 `{token, expiresIn, user, needsOnboarding}` |
+| POST | `/api/auth/register` | 注册，邮箱模式 `{email, emailCode, password, nickname?}`，或账号模式 `{account, password}` |
+| POST | `/api/auth/email-code` | 发送邮箱验证码，`{email, scene: "register"\|"reset"}` |
+| POST | `/api/auth/reset-password` | 邮箱 + 验证码重置密码 |
+| POST | `/api/auth/sms-code` | 短信验证码，预留给实名认证 |
+| POST | `/api/auth/forgot-password` | 不暴露账号是否存在，存在则给管理员写站内通知，由人工重置 |
 
-- 注册用**邮箱**（`app_user.email`，唯一索引 `uk_email`）；登录时 `account` 传邮箱、handle 或老用户的手机号都能匹配。
-- 邮箱注册会自动生成 handle（邮箱前缀 + 3 位随机，如 `alice123`），昵称默认用邮箱前缀。
-- **手机号不参与注册登录**，`app_user.phone` 保留给后续实名认证使用。
-- **验证码**（`common/VerificationCodeService`）：5 分钟有效、一次性、错 5 次作废；同一目标 60 秒内不可重发、每天 10 条；邮箱与短信共用规则，只是发送通道不同。
-- 发送器可替换：
-  - 邮箱 `common/EmailSender` —— 默认 `DevEmailSender`（打日志 + 回传前端），`EMAIL_PROVIDER=smtp` 时切换到 `SmtpEmailSender`（QQ/163 要用**授权码**），配置见 `app.mail.*`。
-  - 短信 `common/SmsSender` —— 默认 `DevSmsSender`，接阿里云 / 腾讯云时新增实现类即可。
-- 上线前务必设置 `CODE_EXPOSE_CODE=false`（否则验证码会随接口返回，等于没有验证），并把 `EMAIL_PROVIDER` 改成 `smtp`。
-- 哈希：**BCrypt，cost 12**（`spring-security-crypto`，只引这个 jar，不启用整套 Security 过滤链）；旧数据里的 `pbkdf2$...` 仍可校验，登录成功时自动重算成 BCrypt。
-- 登录成功后前端带 `Authorization: Bearer <token>`。token 是 **HMAC-SHA256 签名**的 `base64url(uid.exp).base64url(签名)`，无状态不落库，默认 7 天过期；改 `AUTH_SECRET` 即全部失效。
-- `TokenAuthFilter` 把 token 解出来的用户 id 注入成 `X-User-Id`，所以各 Controller 保持原样，无需改动。
-- **防爆破**：同一账号连续失败 5 次锁定 10 分钟（30 分钟没有新失败则重新计数），锁定期间直接返回 `code: 429`，不校验密码。计数在内存（`common/LoginAttemptService`），单机够用，多实例部署时把计数换成 Redis 即可。
-- 可用环境变量：`AUTH_SECRET`（必须改）、`AUTH_TTL_SECONDS`、`AUTH_ALLOW_HEADER_FALLBACK`、`AUTH_LOGIN_MAX_ATTEMPTS`、`AUTH_LOGIN_LOCK_MINUTES`、`AUTH_LOGIN_FAIL_WINDOW_MINUTES`。
-- 演示账号：`admin` / `cashfans03`，见 `db/migration-auth-admin.sql`（幂等），`seed.sql` 也带一份。
+---
 
-### 邮件通道（验证码）
+## 五、鉴权说明
 
-默认 `app.email.provider=dev`：不发真信，验证码显示在前端并打在后端日志。
+- 登录成功后前端带 `Authorization: Bearer <token>`；token 为 HMAC-SHA256 签名的 `base64url(uid.exp).base64url(签名)`，无状态不落库。
+- `TokenAuthFilter` 解析 token 后注入 `X-User-Id`，Controller 无需感知鉴权细节。
+- 不带 token 时 `X-User-Id` 默认不被信任（`allow-header-fallback=false`），本地裸调接口时用 `AUTH_ALLOW_HEADER_FALLBACK=true` 启动：
 
-想真发信，用**腾讯企业邮箱免费版**（适合小站，全企业 500 封/天）或 QQ 邮箱：
+```bash
+curl -H "X-User-Id: 1" -X POST http://localhost:8080/api/threads/1/like
+```
 
-1. 腾讯企业邮 `exmail.qq.com` 开通免费版 → 添加域名 → 按提示加 **MX** 记录（`mxbiz1.qq.com` 优先级 5、`mxbiz2.qq.com` 优先级 10）和 **SPF**（`v=spf1 include:spf.mail.qq.com ~all`）
-2. 建一个成员账号，例如 `noreply@你的域名`
-3. 开启客户端 / SMTP 权限，生成**客户端专用密码**（不是登录密码）
-4. 填 `config/application.yml`：
+- 密码使用 **BCrypt cost 12**（只引入 `spring-security-crypto`，不启用整套 Security 过滤链）；旧 `pbkdf2$...` 记录仍可校验，登录成功时自动升级。
+- 防爆破：同一账号连续失败 5 次锁定 10 分钟，计数在内存（`LoginAttemptService`），多实例部署时应换成 Redis。
+- 手机号不参与注册登录，`app_user.phone` 保留给实名认证。
+
+### 验证码与邮件
+
+`VerificationCodeService` 统一管理：5 分钟有效、一次性、错 5 次作废；同一目标 60 秒内不可重发、每天 10 条。
+
+发送器可替换：
+
+- 邮箱 `EmailSender`：默认 `DevEmailSender`（打日志 + 回传前端），`EMAIL_PROVIDER=smtp` 时用 `SmtpEmailSender`。
+- 短信 `SmsSender`：默认 `DevSmsSender`，接阿里云 / 腾讯云时新增实现类即可。
+
+开启真实发信（以腾讯企业邮为例）：
+
+1. 在 `exmail.qq.com` 开通免费版，按提示配置 **MX** 与 **SPF** 记录
+2. 创建成员账号，例如 `noreply@你的域名`，开启 SMTP 并生成客户端专用密码
+3. 配置：
 
 ```yaml
 spring:
@@ -180,115 +276,83 @@ spring:
 app:
   email:
     provider: smtp
-    from: 'UNDERCURRENT <noreply@你的域名>'   # 必须与 username 一致
-    test-to: 你的收件邮箱                      # 配了会在启动时发一封自检邮件
+    from: 'UNDERCURRENT <noreply@你的域名>'
 ```
 
-5. 重启后端，日志出现 `邮件自检成功` 即通；失败时会打印具体原因（认证失败 / 连不上 / 被拒发）。
-
-QQ 个人邮箱把 host 换成 `smtp.qq.com`、密码换成「授权码」即可，代码不用改。
-
-### 未登录怎么办
-
-`userId` 从请求头 `X-User-Id` 取：
-
-```bash
-curl -H "X-User-Id: 1" -X POST http://localhost:8080/api/threads/1/like
-```
-
-带 token 时以 token 为准；**不带 token 时 `X-User-Id` 默认不被信任**（`app.auth.allow-header-fallback` 默认 false），需要本地裸调接口时把它设成 `true`：
-
-```bash
-AUTH_ALLOW_HEADER_FALLBACK=true mvn spring-boot:run
-```
-
-未登录时 `liked` / `saved` 恒为 `false`，点赞、通知等需要身份的接口返回 401。
+QQ 个人邮箱把 host 换成 `smtp.qq.com`、密码换成授权码即可，代码无需改动。
 
 ---
 
-## 四、前端要改的地方
+## 六、数据模型
 
-现在前端读的是 `data/mock-data.json`，换成接口后有几处必须同步：
+| 表 | 说明 |
+|---|---|
+| `app_user` | 用户，`role` 区分听众 / 制作人 / 音乐人 / 插件作者 |
+| `user_interest` | 引导选择的流派与艺人偏好（`kind = genre` / `artist`） |
+| `post` | 讨论帖，`pinned` 置顶，`attachment_*` 挂作品，`image` 配图 |
+| `post_reply` | 回复，`parent_id` 支持楼中楼 |
+| `track` | 作品，`spec_json` 存鼓机序列 |
+| `plugin` | 插件，`formats` / `os` 逗号分隔 |
+| `post_like` / `post_save` / `track_like` / `reply_like` | 互动关系，联合主键去重 |
+| `user_follow` | 关注关系 |
+| `notification` | 站内通知 |
+| `conversation` / `direct_message` / `user_block` | 私信会话、消息、拉黑（表已建，接口待开发） |
+| `genre` / `channel` / `plugin_category` / `tag_stat` | 字典与标签统计 |
 
-**1. ID 类型变了**
+计数（`likes_count` / `replies_count`）冗余在业务表，点赞时同事务更新，避免列表页 COUNT 子查询。
 
-mock 里是 `"a1"` `"t1"` `"th1"`，数据库自增主键是 `1` `2` `3`。前端所有 `authorId === artist.id` 这类比对要改成数字比较。
+未建物理外键，只建索引，关联完整性由应用层保证。
 
-**2. 作者信息已内嵌**
+---
 
-以前是 `thread.authorId` 再去 `artists` 数组里 lookup，现在接口直接返回：
+## 七、脚本
 
-```json
-{
-  "id": 1,
-  "author": { "id": 1, "name": "阿鬼", "handle": "ghostwire", "hue": 122, "verified": true },
-  "channel": "作品反馈",
-  "body": "...",
-  "tags": ["求反馈", "boombap"],
-  "likes": 286,
-  "reposts": 41,
-  "repliesCount": 3,
-  "pinned": true,
-  "attachment": { "kind": "track", "trackId": 1, "track": {...} }
-}
-```
+| 脚本 | 用途 |
+|---|---|
+| `scripts/smoke.mjs` | 接口冒烟测试，覆盖元数据 / 帖子 / 作品 / 插件共 11 项检查，点赞收藏成对调用不留脏数据 |
+| `scripts/gen-seed.mjs` | 从 mock 数据生成 `seed.sql` |
+| `scripts/export_h2_to_mysql.py` | 把本地 H2 全量导出为 MySQL 可执行脚本，说明见 `scripts/README-H2.md` |
 
-不用再拼接。
-
-**3. 时间变了**
-
-原来是 `"2 小时前"` 这种字符串，现在是 `"2026-11-23 14:30:00"`。前端需要一个相对时间格式化函数（`dayjs.fromNow()` 或自己写）。
-
-**4. 开发期跨域**
-
-后端已开 CORS（`localhost` / `127.0.0.1` 任意端口）。也可以在 `server.mjs` 或 vite 里配代理：
-
-```js
-proxy: { '/api': { target: 'http://localhost:8080', changeOrigin: true } }
+```bash
+node scripts/smoke.mjs                          # 默认 http://localhost:8080
+node scripts/smoke.mjs http://127.0.0.1:8081    # 指定地址
+python scripts/export_h2_to_mysql.py            # 导出 H2 → MySQL
+python scripts/export_h2_to_mysql.py --schema-only
 ```
 
 ---
 
-## 五、目录结构
+## 八、目录结构
 
 ```
 undercurrent-api/
 ├── pom.xml
-├── scripts/gen-seed.mjs              # mock-data.json → seed.sql
-├── scripts/smoke.mjs                 # 接口冒烟测试（11 项）
+├── config/
+│   ├── application.yml.example    数据库模板（复制为 application.yml 使用）
+│   └── application-local.yml      H2 本地开发配置
+├── scripts/                       冒烟测试 / 种子生成 / H2 导出
 └── src/main/
     ├── java/com/undercurrent/
-    │   ├── UndercurrentApplication.java
-    │   ├── common/                   # 统一响应 / 分页 / 异常 / CSV 转 List
-    │   ├── config/WebConfig.java     # CORS
-    │   ├── domain/                   # 数据库实体
-    │   ├── vo/                       # 返回给前端的视图对象
-    │   ├── dto/                      # 入参
-    │   ├── mapper/                   # MyBatis 接口
-    │   ├── service/                  # 业务
-    │   └── controller/               # REST
+    │   ├── common/                统一响应、分页、异常、验证码、token、密码、邮件/短信发送器
+    │   ├── config/                CORS、连接池预热、邮件启动自检
+    │   ├── domain/                数据库实体
+    │   ├── dto/                   入参
+    │   ├── vo/                    出参
+    │   ├── mapper/                MyBatis 接口
+    │   ├── service/               业务
+    │   └── controller/            REST
     └── resources/
         ├── application.yml
-        ├── mapper/*.xml              # SQL
-        └── db/{schema,seed}.sql
+        ├── mapper/*.xml           SQL
+        └── db/
+            ├── schema.sql         全量建表
+            ├── seed.sql           演示数据
+            ├── migration-*.sql    增量迁移
+            └── h2/                H2 兼容版建表与种子
 ```
 
 ---
 
-## 六、数据模型速览
+## License
 
-| 表 | 说明 |
-|---|---|
-| `app_user` | 用户，`role` 区分音乐人/制作人/插件作者/听众 |
-| `thread` | 讨论帖，`pinned` 置顶，`attachment_*` 挂作品 |
-| `thread_reply` | 回复，`parent_id` 支持楼中楼 |
-| `track` | 作品，`spec_json` 存鼓机序列（JSON 列） |
-| `plugin` | 插件，`formats` / `os` 逗号分隔 |
-| `thread_like` / `thread_save` / `track_like` / `reply_like` | 互动关系，联合主键天然去重 |
-| `user_follow` | 关注关系 |
-| `genre` / `channel` / `plugin_category` | 字典表 |
-| `tag_stat` | 标签帖子数，用于右栏推荐 |
-
-计数（`likes_count` / `replies_count`）做了冗余，点赞时同事务更新，避免列表页 COUNT 子查询。
-
-**没有建物理外键**，只建索引——关联完整性由应用层保证，避免删用户时级联阻塞。如果团队习惯物理外键，可以按注释里的关联关系补上。
+MIT
