@@ -10,23 +10,21 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 短信验证码：生成、发送、校验、限流。
- * <p>存内存（单机够用，重启即失效）；多实例部署换成 Redis：key 用 scene:phone，value 存 code + 过期时间。
- * <p>规则：
- * <ul>
- *   <li>有效期 5 分钟；</li>
- *   <li>同一手机号 60 秒内不能重复发送；</li>
- *   <li>同一手机号每天最多 10 条；</li>
- *   <li>同一验证码最多尝试 5 次，超过即作废；</li>
- *   <li>校验成功后立刻失效（一次性）。</li>
- * </ul>
+ * 验证码：生成、发送、校验、限流。邮箱与短信共用同一套规则，只是发送通道不同。
+ * <p>存内存（重启即失效）；多实例部署换 Redis：key 用 scene:target。
+ * <p>规则：5 分钟有效、一次性、错 5 次作废；同一目标 60 秒内不可重发；每天最多 10 条。
  */
 @Component
 @RequiredArgsConstructor
-public class SmsCodeService {
+public class VerificationCodeService {
 
     public static final String SCENE_REGISTER = "register";
     public static final String SCENE_RESET = "reset";
+
+    /** 发送通道 */
+    public enum Channel {
+        EMAIL, SMS
+    }
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -42,26 +40,27 @@ public class SmsCodeService {
         int count;
     }
 
+    private final EmailSender emailSender;
     private final SmsSender smsSender;
 
-    @Value("${app.sms.ttl-minutes:5}")
+    @Value("${app.code.ttl-minutes:5}")
     private int ttlMinutes;
 
-    @Value("${app.sms.resend-seconds:60}")
+    @Value("${app.code.resend-seconds:60}")
     private int resendSeconds;
 
-    @Value("${app.sms.daily-limit:10}")
+    @Value("${app.code.daily-limit:10}")
     private int dailyLimit;
 
-    @Value("${app.sms.max-verify-attempts:5}")
+    @Value("${app.code.max-verify-attempts:5}")
     private int maxVerifyAttempts;
 
     private final Map<String, Entry> codes = new ConcurrentHashMap<>();
     private final Map<String, Quota> dailyQuota = new ConcurrentHashMap<>();
 
-    /** 发送验证码，返回生成的码（是否需要下发给前端由调用方决定） */
-    public String send(String phone, String scene) {
-        String key = key(phone, scene);
+    /** 发送验证码，返回明文码（是否下发给前端由调用方决定） */
+    public String send(String target, String scene, Channel channel) {
+        String key = key(target, scene);
         long now = System.currentTimeMillis();
 
         Entry existing = codes.get(key);
@@ -69,7 +68,7 @@ public class SmsCodeService {
             long wait = (resendSeconds * 1000L - (now - existing.sentAt) + 999) / 1000;
             throw new BusinessException(429, "发送太频繁，请 " + wait + " 秒后再试");
         }
-        checkDailyQuota(phone);
+        checkDailyQuota(target);
 
         String code = String.format("%06d", RANDOM.nextInt(1_000_000));
         Entry entry = new Entry();
@@ -79,13 +78,17 @@ public class SmsCodeService {
         entry.sentAt = now;
         codes.put(key, entry);
 
-        smsSender.send(phone, code, scene);
+        if (channel == Channel.EMAIL) {
+            emailSender.sendCode(target, code, scene);
+        } else {
+            smsSender.send(target, code, scene);
+        }
         return code;
     }
 
     /** 校验验证码，通过后立即失效 */
-    public void verify(String phone, String scene, String code) {
-        String key = key(phone, scene);
+    public void verify(String target, String scene, String code) {
+        String key = key(target, scene);
         Entry entry = codes.get(key);
         if (entry == null) {
             throw new BusinessException(400, "请先获取验证码");
@@ -110,9 +113,9 @@ public class SmsCodeService {
         return ttlMinutes;
     }
 
-    private void checkDailyQuota(String phone) {
+    private void checkDailyQuota(String target) {
         LocalDate today = LocalDate.now();
-        Quota quota = dailyQuota.computeIfAbsent(phone, p -> {
+        Quota quota = dailyQuota.computeIfAbsent(target, t -> {
             Quota q = new Quota();
             q.day = today;
             return q;
@@ -129,7 +132,7 @@ public class SmsCodeService {
         }
     }
 
-    private String key(String phone, String scene) {
-        return scene + ":" + phone;
+    private String key(String target, String scene) {
+        return scene + ":" + target;
     }
 }

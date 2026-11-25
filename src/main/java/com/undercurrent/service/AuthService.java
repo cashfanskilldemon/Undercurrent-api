@@ -3,7 +3,7 @@ package com.undercurrent.service;
 import com.undercurrent.common.BusinessException;
 import com.undercurrent.common.LoginAttemptService;
 import com.undercurrent.common.PasswordHasher;
-import com.undercurrent.common.SmsCodeService;
+import com.undercurrent.common.VerificationCodeService;
 import com.undercurrent.domain.User;
 import com.undercurrent.mapper.NotificationMapper;
 import com.undercurrent.mapper.UserMapper;
@@ -14,27 +14,30 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** 账号体系：登录、注册、忘记密码申请 */
+/**
+ * 账号体系：注册（邮箱 / 账号）、登录、邮箱验证码重置密码。
+ * 手机号注册已下线，phone 字段留作后续实名认证使用。
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
+    private static final String EMAIL_RE = "^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$";
+
     private final UserMapper userMapper;
     private final NotificationMapper notificationMapper;
     private final LoginAttemptService loginAttemptService;
-    private final SmsCodeService smsCodeService;
+    private final VerificationCodeService verificationCodeService;
 
     /**
-     * 校验账号密码，通过则返回用户 id。
-     * 失败一律抛 401「账号或密码不正确」，不区分账号不存在 / 密码错，避免被枚举；
-     * 同一账号连续失败达到阈值后抛 429 并锁定一段时间。
+     * 校验账号密码，通过则返回用户 id。account 可以是 handle、邮箱或手机号。
+     * 失败一律抛 401，不区分账号不存在 / 密码错，避免被枚举；连续失败会锁定。
      */
     public Long authenticate(String account, String password) {
         if (account == null || account.isBlank() || password == null || password.isEmpty()) {
             throw new BusinessException(400, "请输入账号和密码");
         }
         String key = account.trim();
-        // 已锁定直接拒绝，连密码都不校验
         loginAttemptService.assertNotLocked(key);
 
         User user = userMapper.selectAuthByAccount(key);
@@ -54,38 +57,36 @@ public class AuthService {
 
         loginAttemptService.reset(key);
 
-        // 旧格式（PBKDF2）或 BCrypt 代价因子偏低时，趁这次拿到明文密码顺手升级
         if (PasswordHasher.needsUpgrade(user.getPasswordHash())) {
             userMapper.updatePasswordHash(user.getId(), PasswordHasher.hash(password));
         }
         return user.getId();
     }
 
-    /** 注册：支持「账号」或「手机号」两种方式，成功后可直接登录 */
+    /** 注册：邮箱（需验证码）或账号两种方式 */
     @Transactional
-    public Long register(String account, String phone, String password, String nickname, String smsCode) {
+    public Long register(String account, String email, String password, String nickname, String emailCode) {
         if (password == null || password.length() < 6) {
             throw new BusinessException(400, "密码至少 6 位");
         }
 
-        boolean byPhone = phone != null && !phone.isBlank();
+        boolean byEmail = email != null && !email.isBlank();
         String handle;
-        String normalizedPhone = null;
+        String normalizedEmail = null;
 
-        if (byPhone) {
-            normalizedPhone = phone.trim();
-            if (!normalizedPhone.matches("^1[3-9]\\d{9}$")) {
-                throw new BusinessException(400, "请输入正确的手机号");
+        if (byEmail) {
+            normalizedEmail = email.trim().toLowerCase();
+            if (!normalizedEmail.matches(EMAIL_RE)) {
+                throw new BusinessException(400, "请输入正确的邮箱");
             }
-            if (userMapper.selectAuthByAccount(normalizedPhone) != null) {
-                throw new BusinessException(409, "该手机号已注册");
+            if (userMapper.selectAuthByAccount(normalizedEmail) != null) {
+                throw new BusinessException(409, "该邮箱已被注册");
             }
-            // 手机号注册必须带验证码（账号注册不需要）
-            smsCodeService.verify(normalizedPhone, SmsCodeService.SCENE_REGISTER, smsCode);
-            handle = generateHandle(normalizedPhone);
+            verificationCodeService.verify(normalizedEmail, VerificationCodeService.SCENE_REGISTER, emailCode);
+            handle = generateHandle(normalizedEmail.substring(0, normalizedEmail.indexOf('@')));
         } else {
             if (account == null || account.isBlank()) {
-                throw new BusinessException(400, "请输入手机号或账号");
+                throw new BusinessException(400, "请输入邮箱或账号");
             }
             handle = account.trim().toLowerCase();
             if (userMapper.selectAuthByAccount(handle) != null) {
@@ -98,8 +99,8 @@ public class AuthService {
 
         User user = new User();
         user.setHandle(handle);
-        user.setPhone(normalizedPhone);
-        user.setNickname(resolveNickname(nickname, normalizedPhone, handle));
+        user.setEmail(normalizedEmail);
+        user.setNickname(resolveNickname(nickname, normalizedEmail, handle));
         user.setAvatarHue(ThreadLocalRandom.current().nextInt(0, 360));
         user.setRole("听众");
         user.setPasswordHash(PasswordHasher.hash(password));
@@ -112,22 +113,29 @@ public class AuthService {
         return id;
     }
 
-    /** 昵称：没填就按手机号后四位生成「乐迷1234」，账号注册则直接用账号 */
-    private String resolveNickname(String nickname, String phone, String handle) {
+    /** 昵称：没填就用邮箱前缀（截断到 12 字），账号注册则直接用账号 */
+    private String resolveNickname(String nickname, String email, String handle) {
         if (nickname != null && !nickname.isBlank()) {
             return nickname.trim();
         }
-        if (phone != null) {
-            return "乐迷" + phone.substring(phone.length() - 4);
+        if (email != null) {
+            String prefix = email.substring(0, email.indexOf('@'));
+            return prefix.length() > 12 ? prefix.substring(0, 12) : prefix;
         }
         return handle;
     }
 
-    /** 手机号注册时自动生成 handle（如 u1234567），保证唯一，避免 @13800138000 这种难看的用户名 */
-    private String generateHandle(String phone) {
-        String tail = phone.substring(phone.length() - 4);
+    /** 由邮箱前缀生成唯一 handle，如 alice + 3 位随机 */
+    private String generateHandle(String prefix) {
+        String base = prefix.replaceAll("[^a-zA-Z0-9_]", "");
+        if (base.length() < 3) {
+            base = "user" + base;
+        }
+        if (base.length() > 30) {
+            base = base.substring(0, 30);
+        }
         for (int i = 0; i < 8; i++) {
-            String candidate = "u" + tail + String.format("%03d", ThreadLocalRandom.current().nextInt(1000));
+            String candidate = base + String.format("%03d", ThreadLocalRandom.current().nextInt(1000));
             if (userMapper.selectAuthByAccount(candidate) == null) {
                 return candidate;
             }
@@ -135,31 +143,30 @@ public class AuthService {
         throw new BusinessException(500, "注册繁忙，请稍后重试");
     }
 
-    /** 用手机号 + 验证码重置密码；成功后清掉登录失败计数，旧 token 仍有效至过期（改密码不强制下线） */
+    /** 邮箱 + 验证码重置密码；成功后清掉登录失败计数 */
     @Transactional
-    public void resetPassword(String phone, String smsCode, String newPassword) {
+    public void resetPassword(String email, String emailCode, String newPassword) {
         if (newPassword == null || newPassword.length() < 6) {
             throw new BusinessException(400, "密码至少 6 位");
         }
-        String normalized = phone.trim();
+        String normalized = email.trim().toLowerCase();
         User user = userMapper.selectAuthByAccount(normalized);
         if (user == null) {
-            throw new BusinessException(404, "该手机号未注册");
+            throw new BusinessException(404, "该邮箱未注册");
         }
-        smsCodeService.verify(normalized, SmsCodeService.SCENE_RESET, smsCode);
+        verificationCodeService.verify(normalized, VerificationCodeService.SCENE_RESET, emailCode);
 
         userMapper.updatePasswordHash(user.getId(), PasswordHasher.hash(newPassword));
         loginAttemptService.reset(user.getHandle());
     }
 
-    /** 发送验证码（注册 / 重置密码），返回验证码供 dev 环境回显 */
-    public String sendSmsCode(String phone, String scene) {
-        return smsCodeService.send(phone.trim(), scene);
+    /** 发送验证码（注册 / 重置密码），返回明文码供 dev 环境回显 */
+    public String sendCode(String target, String scene, VerificationCodeService.Channel channel) {
+        return verificationCodeService.send(target.trim(), scene, channel);
     }
 
     /**
-     * 忘记密码：demo 环境没有邮件 / 短信服务，这里把申请写成一条站内通知发给所有管理员。
-     * 无论账号是否存在都返回成功，避免被用来枚举账号。
+     * 旧版「忘记密码申请」：给管理员发站内通知（保留接口，前端已改用验证码重置）。
      */
     @Transactional
     public void requestPasswordReset(String account) {

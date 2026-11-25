@@ -5,13 +5,13 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-/** 用手机号 + 短信验证码重置密码 */
+/** 用邮箱 + 验证码重置密码 */
 @Data
 public class ResetPasswordRequest {
 
-    @NotBlank(message = "请输入手机号")
-    @Pattern(regexp = "^1[3-9]\\d{9}$", message = "请输入正确的手机号")
-    private String phone;
+    @NotBlank(message = "请输入邮箱")
+    @Pattern(regexp = "^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$", message = "请输入正确的邮箱")
+    private String email;
 
     @NotBlank(message = "请输入验证码")
     @Pattern(regexp = "^\\d{6}$", message = "验证码为 6 位数字")

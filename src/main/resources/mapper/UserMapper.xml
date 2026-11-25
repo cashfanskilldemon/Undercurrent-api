@@ -56,18 +56,20 @@
 
     <!-- 登录：不过滤 status，交给 Service 区分「密码错」和「账号禁用」；账号或手机号都能匹配 -->
     <select id="selectAuthByAccount" resultType="com.undercurrent.domain.User">
-        SELECT id, handle, phone, nickname, avatar_hue, city, role, bio,
+        SELECT id, handle, phone, email, nickname, avatar_hue, city, role, bio,
                followers_count, following_count, verified, password_hash, status
         FROM app_user
-        WHERE LOWER(handle) = LOWER(#{account}) OR phone = #{account}
+        WHERE LOWER(handle) = LOWER(#{account})
+           OR LOWER(email) = LOWER(#{account})
+           OR phone = #{account}
         LIMIT 1
     </select>
 
     <insert id="insertUser" useGeneratedKeys="true" keyProperty="id"
             parameterType="com.undercurrent.domain.User">
-        INSERT INTO app_user (handle, phone, nickname, avatar_hue, city, role, bio,
+        INSERT INTO app_user (handle, phone, email, nickname, avatar_hue, city, role, bio,
                               followers_count, following_count, verified, password_hash, status)
-        VALUES (#{handle}, #{phone}, #{nickname}, #{avatarHue}, #{city}, #{role}, #{bio},
+        VALUES (#{handle}, #{phone}, #{email}, #{nickname}, #{avatarHue}, #{city}, #{role}, #{bio},
                 COALESCE(#{followersCount}, 0), COALESCE(#{followingCount}, 0), 0, #{passwordHash}, 1)
     </insert>
 

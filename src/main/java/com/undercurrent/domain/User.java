@@ -11,6 +11,8 @@ public class User {
     private String handle;
     /** 手机号，手机号注册才有；登录时可用手机号代替账号 */
     private String phone;
+    /** 邮箱，注册与找回密码使用 */
+    private String email;
     private String nickname;
     private Integer avatarHue;
     private String city;

@@ -50,12 +50,28 @@ app:
     login-max-attempts: ${AUTH_LOGIN_MAX_ATTEMPTS:5}
     login-lock-minutes: ${AUTH_LOGIN_LOCK_MINUTES:10}
     login-fail-window-minutes: ${AUTH_LOGIN_FAIL_WINDOW_MINUTES:30}
+  email:
+    # dev：验证码不打真实邮件，只打后端日志；改成 smtp 后走下面的 SMTP 配置
+    provider: ${EMAIL_PROVIDER:dev}
+    from: "${EMAIL_FROM:UNDERCURRENT <no-reply@undercurrent.local>}"
+    app-name: UNDERCURRENT
   sms:
-    # dev：验证码只打后端日志；接阿里云 / 腾讯云后改成对应实现
+    # dev：验证码只打后端日志；留给后续手机号实名认证
     provider: ${SMS_PROVIDER:dev}
+  code:
     # dev 环境把验证码回传给前端方便联调，**上线必须关掉**
-    expose-code: ${SMS_EXPOSE_CODE:true}
+    expose-code: ${CODE_EXPOSE_CODE:true}
     ttl-minutes: 5
     resend-seconds: 60
     daily-limit: 10
     max-verify-attempts: 5
+  # 仅在 email.provider=smtp 时生效（QQ / 163 要用授权码，不是登录密码）
+  mail:
+    host: ${EMAIL_SMTP_HOST:smtp.qq.com}
+    port: ${EMAIL_SMTP_PORT:465}
+    username: ${EMAIL_SMTP_USERNAME:}
+    password: ${EMAIL_SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.ssl.enable: true
+      mail.smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory

@@ -138,17 +138,20 @@ node scripts/smoke.mjs http://127.0.0.1:8081    # 指定其它地址
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | POST | `/api/auth/login` | 账号密码登录，body `{ "account": "admin", "password": "..." }`，成功返回 `{ token, expiresIn, user }`；失败 `code: 401` |
-| POST | `/api/auth/register` | 注册，body `{ "phone": "138..." }` 或 `{ "account": "..." }` + `password` + 选填 `nickname`；密码 6-64 位；重复 `code: 409`；成功直接返回 token |
-| — | 登录账号规则 | `account` 传 handle 或手机号都能登录；手机号注册时自动生成 handle（`u` + 后四位 + 3 位随机），昵称默认「乐迷+后四位」 |
-| POST | `/api/auth/sms-code` | 发送验证码，body `{ "phone": "138...", "scene": "register\|reset" }`；60 秒内不可重发、每天 10 条上限；dev 环境返回 `devCode` 便于联调 |
-| POST | `/api/auth/reset-password` | 手机号 + 验证码重置密码，body `{ "phone", "code", "newPassword" }`，成功后清空登录失败计数 |
+| POST | `/api/auth/register` | 注册，body `{ "email": "...", "emailCode": "123456" }` 或 `{ "account": "..." }` + `password` + 选填 `nickname`；密码 6-64 位；重复 `code: 409`；成功直接返回 token |
+| POST | `/api/auth/email-code` | 发送邮箱验证码，body `{ "email": "...", "scene": "register\|reset" }`；60 秒内不可重发、每天 10 条上限；dev 环境返回 `devCode` 便于联调 |
+| POST | `/api/auth/reset-password` | 邮箱 + 验证码重置密码，body `{ "email", "code", "newPassword" }`，成功后清空登录失败计数 |
+| POST | `/api/auth/sms-code` | 短信验证码，body `{ "phone", "scene" }`；**注册登录不走短信**，留给后续手机号实名认证 |
 | POST | `/api/auth/forgot-password` | 忘记密码，body `{ "account": "..." }`；**不暴露账号是否存在**，存在则给所有管理员写一条站内通知，由人工重置 |
 
-- 账号即 `app_user.handle`（大小写不敏感），手机号存在 `app_user.phone`（唯一索引 `uk_phone`，历史账号为 NULL），密码存在 `password_hash` 列。
-- **短信验证码**：注册（scene=register）必须带 6 位验证码，重置密码（scene=reset）同样；验证码 5 分钟有效、一次性、错 5 次作废。
-- 发送器可替换：`common/SmsSender` 是接口，当前注入 `DevSmsSender`（只打日志到后端控制台，并把验证码回传给前端）。
-  接入阿里云 / 腾讯云时新增一个实现类（加 `@Primary` 或把 `app.sms.provider` 改成对应值），业务代码不用动。
-- 上线前务必设置 `SMS_EXPOSE_CODE=false`（否则验证码会随接口返回，等于没有验证）。
+- 注册用**邮箱**（`app_user.email`，唯一索引 `uk_email`）；登录时 `account` 传邮箱、handle 或老用户的手机号都能匹配。
+- 邮箱注册会自动生成 handle（邮箱前缀 + 3 位随机，如 `alice123`），昵称默认用邮箱前缀。
+- **手机号不参与注册登录**，`app_user.phone` 保留给后续实名认证使用。
+- **验证码**（`common/VerificationCodeService`）：5 分钟有效、一次性、错 5 次作废；同一目标 60 秒内不可重发、每天 10 条；邮箱与短信共用规则，只是发送通道不同。
+- 发送器可替换：
+  - 邮箱 `common/EmailSender` —— 默认 `DevEmailSender`（打日志 + 回传前端），`EMAIL_PROVIDER=smtp` 时切换到 `SmtpEmailSender`（QQ/163 要用**授权码**），配置见 `app.mail.*`。
+  - 短信 `common/SmsSender` —— 默认 `DevSmsSender`，接阿里云 / 腾讯云时新增实现类即可。
+- 上线前务必设置 `CODE_EXPOSE_CODE=false`（否则验证码会随接口返回，等于没有验证），并把 `EMAIL_PROVIDER` 改成 `smtp`。
 - 哈希：**BCrypt，cost 12**（`spring-security-crypto`，只引这个 jar，不启用整套 Security 过滤链）；旧数据里的 `pbkdf2$...` 仍可校验，登录成功时自动重算成 BCrypt。
 - 登录成功后前端带 `Authorization: Bearer <token>`。token 是 **HMAC-SHA256 签名**的 `base64url(uid.exp).base64url(签名)`，无状态不落库，默认 7 天过期；改 `AUTH_SECRET` 即全部失效。
 - `TokenAuthFilter` 把 token 解出来的用户 id 注入成 `X-User-Id`，所以各 Controller 保持原样，无需改动。
