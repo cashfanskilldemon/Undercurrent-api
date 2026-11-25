@@ -159,6 +159,35 @@ node scripts/smoke.mjs http://127.0.0.1:8081    # 指定其它地址
 - 可用环境变量：`AUTH_SECRET`（必须改）、`AUTH_TTL_SECONDS`、`AUTH_ALLOW_HEADER_FALLBACK`、`AUTH_LOGIN_MAX_ATTEMPTS`、`AUTH_LOGIN_LOCK_MINUTES`、`AUTH_LOGIN_FAIL_WINDOW_MINUTES`。
 - 演示账号：`admin` / `cashfans03`，见 `db/migration-auth-admin.sql`（幂等），`seed.sql` 也带一份。
 
+### 邮件通道（验证码）
+
+默认 `app.email.provider=dev`：不发真信，验证码显示在前端并打在后端日志。
+
+想真发信，用**腾讯企业邮箱免费版**（适合小站，全企业 500 封/天）或 QQ 邮箱：
+
+1. 腾讯企业邮 `exmail.qq.com` 开通免费版 → 添加域名 → 按提示加 **MX** 记录（`mxbiz1.qq.com` 优先级 5、`mxbiz2.qq.com` 优先级 10）和 **SPF**（`v=spf1 include:spf.mail.qq.com ~all`）
+2. 建一个成员账号，例如 `noreply@你的域名`
+3. 开启客户端 / SMTP 权限，生成**客户端专用密码**（不是登录密码）
+4. 填 `config/application.yml`：
+
+```yaml
+spring:
+  mail:
+    host: smtp.exmail.qq.com
+    port: 465
+    username: noreply@你的域名
+    password: 客户端专用密码
+app:
+  email:
+    provider: smtp
+    from: 'UNDERCURRENT <noreply@你的域名>'   # 必须与 username 一致
+    test-to: 你的收件邮箱                      # 配了会在启动时发一封自检邮件
+```
+
+5. 重启后端，日志出现 `邮件自检成功` 即通；失败时会打印具体原因（认证失败 / 连不上 / 被拒发）。
+
+QQ 个人邮箱把 host 换成 `smtp.qq.com`、密码换成「授权码」即可，代码不用改。
+
 ### 未登录怎么办
 
 `userId` 从请求头 `X-User-Id` 取：

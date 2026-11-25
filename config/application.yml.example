@@ -10,3 +10,28 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/Undercurrent_test?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
     username: root
     password: ''
+
+  # ===== 邮件服务器（验证码）=====
+  # 腾讯企业邮：smtp.exmail.qq.com（465 = SSL，587 = STARTTLS）
+  # QQ 个人邮箱：smtp.qq.com（465） / 163：smtp.163.com（465）
+  mail:
+    host: smtp.exmail.qq.com
+    port: 465
+    username: noreply@your-domain.com
+    # 腾讯企业邮「客户端专用密码」或 QQ 邮箱「授权码」，不是登录密码
+    password: ''
+    default-encoding: UTF-8
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.ssl.enable: true
+      mail.smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory
+      mail.smtp.socketFactory.fallback: false
+
+app:
+  email:
+    # dev：不发真信，验证码显示在前端并打日志；smtp：真实发信，走上面的 spring.mail.*
+    provider: dev
+    # 必须和 spring.mail.username 一致，否则腾讯企业邮 / QQ 会拒发
+    from: 'UNDERCURRENT <noreply@your-domain.com>'
+    # 配了这行，启动时会往该地址发一封测试邮件，日志里能看到成功 / 失败原因
+    test-to: ''
