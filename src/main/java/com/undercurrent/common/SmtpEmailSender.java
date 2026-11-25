@@ -37,10 +37,18 @@ public class SmtpEmailSender implements EmailSender {
 
     public SmtpEmailSender(JavaMailSender mailSender,
                            @Value("${app.email.from:}") String from,
-                           @Value("${app.email.app-name:UNDERCURRENT}") String appName) {
+                           @Value("${app.email.app-name:UNDERCURRENT}") String appName,
+                           @Value("${spring.mail.username:}") String username) {
         this.mailSender = mailSender;
         this.from = from;
         this.appName = appName;
+        if (username == null || username.isBlank()) {
+            log.warn("app.email.provider=smtp 但 spring.mail.username 为空，验证码邮件会发送失败；"
+                    + "请在 config/application.yml 或环境变量里配置邮箱账号与授权码");
+        }
+        if (from == null || from.isBlank()) {
+            log.warn("app.email.from 为空，将使用默认发件人，部分邮箱（如 QQ）要求发件人与登录账号一致");
+        }
     }
 
     @Override

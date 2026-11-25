@@ -21,6 +21,18 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
       connection-timeout: 30000
+  # 邮件服务器：只有 app.email.provider=smtp 时才会真正用到（QQ / 163 用授权码，不是登录密码）
+  mail:
+    host: ${EMAIL_SMTP_HOST:smtp.qq.com}
+    port: ${EMAIL_SMTP_PORT:465}
+    username: ${EMAIL_SMTP_USERNAME:}
+    password: ${EMAIL_SMTP_PASSWORD:}
+    default-encoding: UTF-8
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.ssl.enable: true
+      mail.smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory
+      mail.smtp.socketFactory.fallback: false
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
@@ -65,13 +77,4 @@ app:
     resend-seconds: 60
     daily-limit: 10
     max-verify-attempts: 5
-  # 仅在 email.provider=smtp 时生效（QQ / 163 要用授权码，不是登录密码）
-  mail:
-    host: ${EMAIL_SMTP_HOST:smtp.qq.com}
-    port: ${EMAIL_SMTP_PORT:465}
-    username: ${EMAIL_SMTP_USERNAME:}
-    password: ${EMAIL_SMTP_PASSWORD:}
-    properties:
-      mail.smtp.auth: true
-      mail.smtp.ssl.enable: true
-      mail.smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory
+
