@@ -1,0 +1,267 @@
+-- 初始化数据：由 data/mock-data.json 生成
+
+
+-- 流派（1-8 号被 track.genre_id 引用，名称与 id 不可改动；其余按分类序排列）
+INSERT IGNORE INTO genre (id, name, category, sort_order) VALUES
+  (1, 'Boom Bap', '嘻哈 / 说唱', 101),
+  (9, 'Jazz Rap', '嘻哈 / 说唱', 102),
+  (2, 'Trap', '嘻哈 / 说唱', 103),
+  (4, 'Drill', '嘻哈 / 说唱', 104),
+  (3, 'Phonk', '嘻哈 / 说唱', 105),
+  (10, 'Memphis Rap', '嘻哈 / 说唱', 106),
+  (11, 'G-Funk', '嘻哈 / 说唱', 107),
+  (12, 'Cloud Rap', '嘻哈 / 说唱', 108),
+  (13, 'Emo Rap', '嘻哈 / 说唱', 109),
+  (62, 'Trap Soul', '嘻哈 / 说唱', 110),
+  (63, 'Plugg', '嘻哈 / 说唱', 111),
+  (64, 'Rage', '嘻哈 / 说唱', 112),
+  (65, 'Detroit Rap', '嘻哈 / 说唱', 113),
+  (66, 'Chopped & Screwed', '嘻哈 / 说唱', 114),
+  (67, 'Hyphy', '嘻哈 / 说唱', 115),
+  (5, 'UK Bass', '低音 / 俱乐部', 201),
+  (14, 'Dubstep', '低音 / 俱乐部', 202),
+  (15, 'Drum & Bass', '低音 / 俱乐部', 203),
+  (16, 'Jungle', '低音 / 俱乐部', 204),
+  (8, 'Breakcore', '低音 / 俱乐部', 205),
+  (17, 'Footwork', '低音 / 俱乐部', 206),
+  (18, 'Jersey Club', '低音 / 俱乐部', 207),
+  (19, '2-Step', '低音 / 俱乐部', 208),
+  (20, 'Baile Funk', '低音 / 俱乐部', 209),
+  (21, 'Amapiano', '低音 / 俱乐部', 210),
+  (68, 'Grime', '低音 / 俱乐部', 211),
+  (69, 'UK Garage', '低音 / 俱乐部', 212),
+  (70, 'Speed Garage', '低音 / 俱乐部', 213),
+  (71, 'Bassline', '低音 / 俱乐部', 214),
+  (72, 'Liquid DnB', '低音 / 俱乐部', 215),
+  (73, 'Neurofunk', '低音 / 俱乐部', 216),
+  (74, 'Jump Up', '低音 / 俱乐部', 217),
+  (75, 'Halftime', '低音 / 俱乐部', 218),
+  (76, 'Riddim', '低音 / 俱乐部', 219),
+  (77, 'Breakbeat Hardcore', '低音 / 俱乐部', 220),
+  (78, 'Gabber', '低音 / 俱乐部', 221),
+  (79, 'Hard Drum', '低音 / 俱乐部', 222),
+  (80, 'Gqom', '低音 / 俱乐部', 223),
+  (81, 'Baltimore Club', '低音 / 俱乐部', 224),
+  (22, 'House', '电子 / 舞曲', 301),
+  (23, 'Deep House', '电子 / 舞曲', 302),
+  (24, 'Techno', '电子 / 舞曲', 303),
+  (25, 'Trance', '电子 / 舞曲', 304),
+  (26, 'Electro', '电子 / 舞曲', 305),
+  (27, 'Synthwave', '电子 / 舞曲', 306),
+  (28, 'Vaporwave', '电子 / 舞曲', 307),
+  (29, 'Hyperpop', '电子 / 舞曲', 308),
+  (82, 'Tech House', '电子 / 舞曲', 309),
+  (83, 'Minimal', '电子 / 舞曲', 310),
+  (84, 'Progressive House', '电子 / 舞曲', 311),
+  (85, 'Acid House', '电子 / 舞曲', 312),
+  (86, 'Afro House', '电子 / 舞曲', 313),
+  (87, 'Melodic Techno', '电子 / 舞曲', 314),
+  (88, 'Hard Techno', '电子 / 舞曲', 315),
+  (89, 'Psytrance', '电子 / 舞曲', 316),
+  (90, 'Hardstyle', '电子 / 舞曲', 317),
+  (91, 'Nu-Disco', '电子 / 舞曲', 318),
+  (92, 'French House', '电子 / 舞曲', 319),
+  (93, 'Breakbeat', '电子 / 舞曲', 320),
+  (94, 'Future Garage', '电子 / 舞曲', 321),
+  (95, 'Big Beat', '电子 / 舞曲', 322),
+  (7, 'Lo-fi', '氛围 / 慢速', 401),
+  (30, 'Chillhop', '氛围 / 慢速', 402),
+  (31, 'Ambient', '氛围 / 慢速', 403),
+  (32, 'Drone', '氛围 / 慢速', 404),
+  (33, 'Trip Hop', '氛围 / 慢速', 405),
+  (34, 'Downtempo', '氛围 / 慢速', 406),
+  (35, 'Bedroom Pop', '氛围 / 慢速', 407),
+  (36, 'Modern Classical', '氛围 / 慢速', 408),
+  (96, 'Dark Ambient', '氛围 / 慢速', 409),
+  (97, 'Ambient Techno', '氛围 / 慢速', 410),
+  (98, 'Chillwave', '氛围 / 慢速', 411),
+  (99, 'Slowcore', '氛围 / 慢速', 412),
+  (37, 'Jazz', '爵士 / 灵魂', 501),
+  (38, 'Fusion', '爵士 / 灵魂', 502),
+  (39, 'Neo-Soul', '爵士 / 灵魂', 503),
+  (40, 'Funk', '爵士 / 灵魂', 504),
+  (41, 'R&B', '爵士 / 灵魂', 505),
+  (42, 'Gospel', '爵士 / 灵魂', 506),
+  (43, 'Bossa Nova', '爵士 / 灵魂', 507),
+  (100, 'Nu-Jazz', '爵士 / 灵魂', 508),
+  (101, 'Broken Beat', '爵士 / 灵魂', 509),
+  (102, 'Future Soul', '爵士 / 灵魂', 510),
+  (103, 'Alternative R&B', '爵士 / 灵魂', 511),
+  (104, 'Acid Jazz', '爵士 / 灵魂', 512),
+  (44, 'Indie Rock', '摇滚 / 独立', 601),
+  (45, 'Shoegaze', '摇滚 / 独立', 602),
+  (46, 'Post-Rock', '摇滚 / 独立', 603),
+  (47, 'Math Rock', '摇滚 / 独立', 604),
+  (48, 'Punk', '摇滚 / 独立', 605),
+  (49, 'Post-Punk', '摇滚 / 独立', 606),
+  (50, 'Metal', '摇滚 / 独立', 607),
+  (105, 'Dream Pop', '摇滚 / 独立', 608),
+  (106, 'Noise Rock', '摇滚 / 独立', 609),
+  (107, 'Midwest Emo', '摇滚 / 独立', 610),
+  (108, 'Screamo', '摇滚 / 独立', 611),
+  (109, 'Post-Hardcore', '摇滚 / 独立', 612),
+  (110, 'Djent', '摇滚 / 独立', 613),
+  (111, 'Blackgaze', '摇滚 / 独立', 614),
+  (6, 'Dub', '民族 / 世界', 701),
+  (51, 'Reggae', '民族 / 世界', 702),
+  (52, 'Dancehall', '民族 / 世界', 703),
+  (53, 'Afrobeat', '民族 / 世界', 704),
+  (54, 'Latin', '民族 / 世界', 705),
+  (55, 'Cumbia', '民族 / 世界', 706),
+  (56, '国风', '民族 / 世界', 707),
+  (112, 'Afrobeats', '民族 / 世界', 708),
+  (113, 'Alté', '民族 / 世界', 709),
+  (114, 'Reggaeton', '民族 / 世界', 710),
+  (115, 'Dembow', '民族 / 世界', 711),
+  (116, 'Moombahton', '民族 / 世界', 712),
+  (117, 'Kizomba', '民族 / 世界', 713),
+  (118, 'Zouk', '民族 / 世界', 714),
+  (119, 'Soca', '民族 / 世界', 715),
+  (57, 'IDM', '实验 / 声音', 801),
+  (58, 'Glitch', '实验 / 声音', 802),
+  (59, 'Noise', '实验 / 声音', 803),
+  (60, 'Sound Design', '实验 / 声音', 804),
+  (61, '影视配乐', '实验 / 声音', 805),
+  (120, 'Deconstructed Club', '实验 / 声音', 806),
+  (121, 'Post-Club', '实验 / 声音', 807),
+  (122, 'Plunderphonics', '实验 / 声音', 808),
+  (123, 'Industrial', '实验 / 声音', 809),
+  (124, 'Experimental', '实验 / 声音', 810),
+  (125, 'Chiptune', '实验 / 声音', 811),
+  (126, 'Field Recording', '实验 / 声音', 812);
+
+-- 讨论频道（"全部"是前端虚拟项，不入库）
+INSERT IGNORE INTO channel (id, name, slug, sort_order) VALUES (1, '作品反馈', 'feedback', 1);
+INSERT IGNORE INTO channel (id, name, slug, sort_order) VALUES (2, '混音母带', 'mixing', 2);
+INSERT IGNORE INTO channel (id, name, slug, sort_order) VALUES (3, '采样与版权', 'sampling', 3);
+INSERT IGNORE INTO channel (id, name, slug, sort_order) VALUES (4, '器材', 'gear', 4);
+INSERT IGNORE INTO channel (id, name, slug, sort_order) VALUES (5, '现场演出', 'live', 5);
+INSERT IGNORE INTO channel (id, name, slug, sort_order) VALUES (6, '闲聊', 'chat', 6);
+
+-- 插件分类
+INSERT IGNORE INTO plugin_category (id, name, sort_order) VALUES (1, '合成器', 1);
+INSERT IGNORE INTO plugin_category (id, name, sort_order) VALUES (2, '效果器', 2);
+INSERT IGNORE INTO plugin_category (id, name, sort_order) VALUES (3, '鼓机', 3);
+INSERT IGNORE INTO plugin_category (id, name, sort_order) VALUES (4, '采样包', 4);
+INSERT IGNORE INTO plugin_category (id, name, sort_order) VALUES (5, '预设包', 5);
+
+-- 用户（音乐人/制作人/插件作者/听众）
+INSERT IGNORE INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_count, verified, created_at) VALUES (1, 'ghostwire', '阿鬼', 122, '成都', '音乐人', 18432, 1, NOW());
+INSERT IGNORE INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_count, verified, created_at) VALUES (2, 'line9', '九号线', 42, '上海', '制作人', 9217, 1, NOW());
+INSERT IGNORE INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_count, verified, created_at) VALUES (3, 'ashe.mp3', '灰烬', 15, '重庆', '音乐人', 26105, 0, NOW());
+INSERT IGNORE INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_count, verified, created_at) VALUES (4, 'platformkid', '月台少年', 220, '北京', '制作人', 4388, 0, NOW());
+INSERT IGNORE INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_count, verified, created_at) VALUES (5, 'lopressure', '低压槽', 160, '广州', '音乐人', 7741, 0, NOW());
+INSERT IGNORE INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_count, verified, created_at) VALUES (6, 'nightshift404', '夜班404', 290, '杭州', '音乐人', 12960, 0, NOW());
+INSERT IGNORE INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_count, verified, created_at) VALUES (7, 'solderdad', '老焊工', 70, '深圳', '插件作者', 3172, 1, NOW());
+INSERT IGNORE INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_count, verified, created_at) VALUES (8, 'tapebin', '磁带回收站', 30, '西安', '插件作者', 5604, 0, NOW());
+INSERT IGNORE INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_count, verified, created_at) VALUES (9, 'scallion', '小葱拌豆腐', 100, '长沙', '听众', 211, 0, NOW());
+INSERT IGNORE INTO app_user (id, handle, nickname, avatar_hue, city, role, followers_count, verified, created_at) VALUES (10, 'exit_two', 'DJ 二号口', 200, '武汉', '听众', 893, 0, NOW());
+
+-- 管理员账号：admin / cashfans03（BCrypt cost 12）
+INSERT IGNORE INTO app_user (handle, nickname, avatar_hue, city, role, bio, followers_count, following_count, verified, password_hash, status) VALUES ('admin', '管理员', 122, '乌鲁木齐', '管理员', '站点管理员账号', 128, 12, 1, '$2a$12$3PIju6pvHQ2WVQA4Jh8YnexnyQsYw0HDh.AvKbcDVt8.50SGh76su', 1);
+
+-- 作品
+INSERT IGNORE INTO track (id, artist_id, title, genre_id, bpm, musical_key, duration_sec, plays, likes_count, comments_count, cover, blurb, spec_json, released_at) VALUES (1, 1, '地铁末班', 1, 88, 'F 小调', 207, 48213, 3127, 214, 'cover-1.png', '录在二号线最后一班车上的环境声，鼓是 SP-404 里切的老唱片。', '{"bpm":88,"swing":0.16,"kick":"x.....x...x.....","snare":"....x.......x...","hat":"x.x.x.x.x.x.x.xx","bass":[0,null,null,null,null,null,-2,null,null,null,3,null,null,null,null,null],"root":41,"bassWave":"triangle","chord":[0,3,7,10]}', DATEADD('DAY', -3, NOW()));
+INSERT IGNORE INTO track (id, artist_id, title, genre_id, bpm, musical_key, duration_sec, plays, likes_count, comments_count, cover, blurb, spec_json, released_at) VALUES (2, 2, 'PAD 7', 5, 132, 'G 小调', 244, 21904, 1688, 97, 'cover-2.png', '一整首只用 MPC 第七个垫子的声音，做成了两步车库。', '{"bpm":132,"swing":0.22,"kick":"x.........x.....","snare":"....x.......x...","hat":"..x...x...x...xx","bass":[0,null,null,0,null,null,5,null,null,null,3,null,7,null,null,null],"root":43,"bassWave":"sawtooth"}', DATEADD('WEEK', -1, NOW()));
+INSERT IGNORE INTO track (id, artist_id, title, genre_id, bpm, musical_key, duration_sec, plays, likes_count, comments_count, cover, blurb, spec_json, released_at) VALUES (3, 3, '雾都漂移', 3, 140, 'C# 小调', 168, 96077, 8840, 532, 'cover-3.png', '牛铃换成了重庆轻轨报站声。808 开到失真，开车别听。', '{"bpm":140,"swing":0,"kick":"x.....x.x.......","snare":"....x.......x...","hat":"xxxxxxxxxxxxxxxx","bass":[0,null,null,null,null,null,0,null,3,null,null,null,null,null,-2,null],"root":37,"bassWave":"sine","long808":true}', DATEADD('WEEK', -2, NOW()));
+INSERT IGNORE INTO track (id, artist_id, title, genre_id, bpm, musical_key, duration_sec, plays, likes_count, comments_count, cover, blurb, spec_json, released_at) VALUES (4, 6, '十七层', 4, 142, 'A 小调', 191, 33580, 2401, 158, 'cover-4.png', '楼里只有一扇窗亮着，是我在剪 hi-hat。', '{"bpm":142,"swing":0,"kick":"x.......x.x.....","snare":"......x.......x.","hat":"x.xx.x.xx.x.xxx.","bass":[0,null,null,null,null,null,null,null,3,null,1,null,null,null,null,null],"root":33,"bassWave":"sine","long808":true}', DATEADD('DAY', -5, NOW()));
+INSERT IGNORE INTO track (id, artist_id, title, genre_id, bpm, musical_key, duration_sec, plays, likes_count, comments_count, cover, blurb, spec_json, released_at) VALUES (5, 5, '跳线打结', 6, 72, 'E 小调', 312, 12866, 1032, 61, 'cover-5.png', '模块合成器一条跳线没拔就录了，延迟反馈全是意外。', '{"bpm":72,"swing":0.08,"kick":"x.......x.......","snare":"........x.......","hat":"..x...x...x...x.","bass":[0,null,0,null,null,null,7,null,5,null,null,null,3,null,null,null],"root":40,"bassWave":"sine","chord":[0,7,10,15]}', DATEADD('WEEK', -3, NOW()));
+INSERT IGNORE INTO track (id, artist_id, title, genre_id, bpm, musical_key, duration_sec, plays, likes_count, comments_count, cover, blurb, spec_json, released_at) VALUES (6, 4, '天台磁带', 7, 82, 'D 大调', 156, 18350, 1977, 84, 'cover-6.png', '从二手市场淘的磁带，绞带那段我没剪掉。', '{"bpm":82,"swing":0.16,"kick":"x.....x...x.....","snare":"....x.......x...","hat":"x.x.x.x.x.x.x.xx","bass":[0,null,null,null,null,null,null,null,5,null,null,null,7,null,null,null],"root":38,"bassWave":"triangle","chord":[0,4,7,11]}', NOW());
+INSERT IGNORE INTO track (id, artist_id, title, genre_id, bpm, musical_key, duration_sec, plays, likes_count, comments_count, cover, blurb, spec_json, released_at) VALUES (7, 2, '断电重启', 8, 174, 'B 小调', 139, 7412, 640, 39, 'cover-2.png', 'Amen 切到第 400 刀的时候宿舍停电了。', '{"bpm":174,"swing":0,"kick":"x.x.......x.x...","snare":"....x..x.x..x..x","hat":"x.x.x.x.x.x.x.x.","bass":[0,null,null,null,null,null,null,null,-2,null,null,null,null,null,null,null],"root":35,"bassWave":"sawtooth"}', NOW());
+INSERT IGNORE INTO track (id, artist_id, title, genre_id, bpm, musical_key, duration_sec, plays, likes_count, comments_count, cover, blurb, spec_json, released_at) VALUES (8, 3, '火锅底料', 2, 136, 'D# 小调', 201, 61290, 5263, 377, 'cover-1.png', '和阿鬼在九眼桥边录的，副歌是凌晨三点写的。', '{"bpm":136,"swing":0,"kick":"x.....x...x.....","snare":"........x.......","hat":"x.x.xxx.x.x.x.xx","bass":[0,null,null,null,null,null,0,null,null,null,5,null,null,null,null,null],"root":39,"bassWave":"sine","long808":true}', NOW());
+
+-- 作品标签
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (1, '采样');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (1, 'SP-404');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (1, '叙事');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (2, '2-step');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (2, 'MPC');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (2, '极简');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (3, '808');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (3, '牛铃');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (3, '失真');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (4, '滑音 808');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (4, '夜晚');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (5, '模块');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (5, '延迟');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (5, '重低音');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (6, '磁带');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (6, '温暖');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (6, '学习');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (7, 'Amen');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (7, '碎拍');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (8, '合作');
+INSERT IGNORE INTO track_tag (track_id, tag) VALUES (8, '方言');
+
+-- 插件
+INSERT IGNORE INTO plugin (id, maker_id, name, category_id, price, rating, reviews_count, downloads, formats, os, version, file_size, hue, knobs, tagline, description, updated_at) VALUES (1, 7, 'Soot 煤灰', 2, 0, 4.8, 412, 23871, 'VST3,AU,CLAP', 'Win,Mac', '1.4.2', '18.6 MB', 122, 4, '把干净的鼓变脏的磁带饱和器', '模拟三种磁带机的饱和与抖动，附带 wow / flutter 和磁头噪声。专门为 boom bap 的鼓组调教过，推到底也不会糊。', DATEADD('DAY', -6, NOW()));
+INSERT IGNORE INTO plugin (id, maker_id, name, category_id, price, rating, reviews_count, downloads, formats, os, version, file_size, hue, knobs, tagline, description, updated_at) VALUES (2, 7, 'Bolt 808', 3, 68, 4.6, 189, 6204, 'VST3,AU', 'Win,Mac', '2.0.0', '412 MB', 42, 6, '会自动滑音的 808 低音鼓', '内置 64 个从真机采样的 808，支持按音阶自动 glide、失真分频和侧链。Drill 和 phonk 制作人最常用的一块。', DATEADD('WEEK', -2, NOW()));
+INSERT IGNORE INTO plugin (id, maker_id, name, category_id, price, rating, reviews_count, downloads, formats, os, version, file_size, hue, knobs, tagline, description, updated_at) VALUES (3, 8, '旧货市场 Vol.3', 4, 39, 4.9, 267, 9318, 'WAV', 'Win,Mac', '3.0', '1.2 GB', 30, 0, '200 段已清版权的老唱片切片', '全部来自西安旧货市场淘到的黑胶和磁带，每一段都已经和版权方确认过可商用。按 BPM 和调性整理好了。', NOW());
+INSERT IGNORE INTO plugin (id, maker_id, name, category_id, price, rating, reviews_count, downloads, formats, os, version, file_size, hue, knobs, tagline, description, updated_at) VALUES (4, 7, 'Hum 嗡', 1, 128, 4.5, 93, 2716, 'VST3,AU,AAX', 'Win,Mac', '1.1.0', '96 MB', 200, 8, '专做低频的双振荡器合成器', '两个振荡器加一个只在 200Hz 以下工作的滤波器。没有花哨的预置，就是为了做 dub 和 UK bass 的 sub。', DATEADD('DAY', -3, NOW()));
+INSERT IGNORE INTO plugin (id, maker_id, name, category_id, price, rating, reviews_count, downloads, formats, os, version, file_size, hue, knobs, tagline, description, updated_at) VALUES (5, 8, 'Echo Chamber 回声室', 2, 0, 4.4, 158, 14092, 'VST3,AU', 'Win,Mac,Linux', '0.9.7', '7.4 MB', 160, 5, '模仿地下室混凝土墙的混响', '在真实地下室录的 12 组脉冲响应，附带一个能自激的弹簧延迟。开源，欢迎在讨论区提 bug。', NOW());
+INSERT IGNORE INTO plugin (id, maker_id, name, category_id, price, rating, reviews_count, downloads, formats, os, version, file_size, hue, knobs, tagline, description, updated_at) VALUES (6, 3, '雾都 Phonk 预设', 5, 25, 4.7, 341, 11507, 'Serum,Vital', 'Win,Mac', '1.0', '3.1 MB', 15, 3, '《雾都漂移》里用到的 48 个音色', '灰烬本人整理的牛铃、失真 808、和那条很脏的主音。Serum 和 Vital 双版本。', DATEADD('WEEK', -2, NOW()));
+INSERT IGNORE INTO plugin (id, maker_id, name, category_id, price, rating, reviews_count, downloads, formats, os, version, file_size, hue, knobs, tagline, description, updated_at) VALUES (7, 8, 'Chop Shop 切片铺', 2, 45, 4.3, 77, 3390, 'VST3,AU,CLAP', 'Win,Mac', '1.2.1', '22 MB', 290, 6, '实时切片和重排的 glitch 工具', '按拍子切片、倒放、跳帧，可以用 MIDI 触发。做 breakcore 和过门很顺手。', DATEADD('DAY', -5, NOW()));
+INSERT IGNORE INTO plugin (id, maker_id, name, category_id, price, rating, reviews_count, downloads, formats, os, version, file_size, hue, knobs, tagline, description, updated_at) VALUES (8, 5, '城中村 Field Recordings', 4, 0, 4.8, 122, 7651, 'WAV', 'Win,Mac,Linux', '1.0', '640 MB', 85, 0, '广州城中村 90 段环境录音', '早茶店、摩托车、楼道里的电视声。CC0 授权，随便用。', DATEADD('WEEK', -3, NOW()));
+
+-- 帖子
+INSERT IGNORE INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (1, 1, 1, '新歌《地铁末班》上线了。鼓全是从一张 80 年代的磁带里切的，低频我总觉得有点糊，有懂混音的兄弟帮听一下 0:42 那段吗？', 286, 41, 3, 1, 'track', 1, DATEADD('HOUR', -2, NOW()));
+INSERT IGNORE INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (2, 3, 3, '说个可能得罪人的观点：地下圈子用采样不清版权，等歌火了再被下架，最后吃亏的还是自己。我现在宁愿花钱买清过的采样包。大家都怎么处理的？', 512, 97, 3, 0, NULL, NULL, DATEADD('HOUR', -4, NOW()));
+INSERT IGNORE INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (3, 7, 4, 'Soot 1.4.2 更新了：修了 Ableton 12 里自动化跳变的问题，新加了一个「破旧随身听」磁头。免费的，插件区直接下。', 194, 58, 1, 0, 'plugin', NULL, DATEADD('HOUR', -6, NOW()));
+INSERT IGNORE INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (4, 6, 5, '下周六杭州有一场地下室 showcase，五个本地 MC 加两个 beatmaker 现场切。场地只能塞 120 人，想来的在下面留城市，我统计一下要不要加场。', 341, 120, 2, 0, NULL, NULL, NOW());
+INSERT IGNORE INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (5, 2, 2, 'UK bass 的 sub 到底该压到多少 LUFS？我把《PAD 7》推到 -8 之后在手机外放上完全听不到低音了，退回 -11 又觉得不够劲。', 127, 14, 1, 0, 'track', 2, NOW());
+INSERT IGNORE INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (6, 4, 6, '今天在潘家园收了一箱磁带，老板说是一个 90 年代电台主持人的私藏。里面有好多没见过的本地乐队，准备慢慢数字化，有兴趣的可以一起听。', 89, 11, 0, 0, NULL, NULL, DATEADD('DAY', -2, NOW()));
+INSERT IGNORE INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (7, 5, 1, '尝试了一首 72 BPM 的 dub，全程没有量化，延迟反馈手动拧的。这种不完美大家能接受吗，还是听起来就是不专业？', 76, 6, 1, 0, 'track', 5, DATEADD('DAY', -3, NOW()));
+
+-- 帖子标签
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (1, '求反馈');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (1, 'boombap');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (2, '版权');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (2, '采样');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (3, '插件更新');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (3, '免费');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (4, '演出');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (4, '杭州');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (5, '母带');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (5, 'LUFS');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (6, '磁带');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (6, '挖碟');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (7, 'dub');
+INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (7, '求反馈');
+
+-- 回复
+INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (1, 1, 5, '0:42 底鼓和贝斯在 60Hz 打架了，试试给贝斯做一个跟底鼓的侧链，或者底鼓往 50Hz 挪一点。', 48, DATEADD('HOUR', -1, NOW()));
+INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (2, 1, 4, '磁带的那层嘶声太好听了，别降噪。', 31, DATEADD('MINUTE', -58, NOW()));
+INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (3, 1, 9, '通勤路上循环第五遍了', 12, DATEADD('MINUTE', -22, NOW()));
+INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (4, 2, 8, '同意。我们做《旧货市场》系列就是因为被下架过两次，一段段去找版权方谈的。', 88, DATEADD('HOUR', -3, NOW()));
+INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (5, 2, 2, '小样随便采，正式发行前一定要清。这是底线。', 64, DATEADD('HOUR', -3, NOW()));
+INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (6, 2, 10, '能不能出一个版权清理的教程帖，置顶那种', 27, DATEADD('HOUR', -2, NOW()));
+INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (7, 3, 1, '老焊工yyds，新磁头放在鼓总线上直接出味道。', 22, DATEADD('HOUR', -5, NOW()));
+INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (8, 4, 10, '武汉，坐高铁过去！', 9, NOW());
+INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (9, 4, 9, '长沙 +1，求加场', 6, NOW());
+INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (10, 5, 5, '手机外放本来就放不出 60Hz 以下，加一点 120Hz 左右的谐波失真让耳朵「脑补」出低音。', 53, NOW());
+INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (11, 7, 1, '地下要什么专业，这就是味道。', 19, DATEADD('DAY', -3, NOW()));
+
+-- 标签热度
+INSERT IGNORE INTO tag_stat (tag, posts) VALUES ('求反馈', 1284);
+INSERT IGNORE INTO tag_stat (tag, posts) VALUES ('boombap', 962);
+INSERT IGNORE INTO tag_stat (tag, posts) VALUES ('版权', 517);
+INSERT IGNORE INTO tag_stat (tag, posts) VALUES ('808', 488);
+INSERT IGNORE INTO tag_stat (tag, posts) VALUES ('插件更新', 301);
+INSERT IGNORE INTO tag_stat (tag, posts) VALUES ('演出', 276);
+INSERT IGNORE INTO tag_stat (tag, posts) VALUES ('磁带', 193);
+
+-- 站内通知（6 条，接收者=user 2）
+INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, 5, 'like', '低压槽 赞了你在「地铁末班」下的回复', '/threads/1', 0, DATEADD('MINUTE', -12, NOW()));
+INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, 8, 'reply', '磁带回收站 回复了你：采样清版权这事，早点做完比事后补救便宜', '/threads/2', 0, DATEADD('MINUTE', -48, NOW()));
+INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, 3, 'follow', '灰烬 关注了你', '/u/ashe.mp3', 0, DATEADD('HOUR', -2, NOW()));
+INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, NULL, 'system', '本周地下榜更新：8 首新作品进入榜单', '/tracks', 0, DATEADD('HOUR', -5, NOW()));
+INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, 1, 'like', '阿鬼 赞了你的帖子', '/threads', 0, DATEADD('DAY', -1, NOW()));
+INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, NULL, 'system', 'Soot 1.4.2 已发布，插件区可直接下载', '/plugins', 0, DATEADD('DAY', -2, NOW()));
+
+-- 关注关系：用户 2 关注 1/3/5/9，供首页关注流与发现页使用
+INSERT IGNORE INTO user_follow (follower_id, followee_id) VALUES (2, 1);
+INSERT IGNORE INTO user_follow (follower_id, followee_id) VALUES (2, 3);
+INSERT IGNORE INTO user_follow (follower_id, followee_id) VALUES (2, 5);
+INSERT IGNORE INTO user_follow (follower_id, followee_id) VALUES (2, 9);
+UPDATE app_user SET following_count = 4 WHERE id = 2;
+UPDATE app_user SET followers_count = followers_count + 1 WHERE id IN (1, 3, 5, 9);

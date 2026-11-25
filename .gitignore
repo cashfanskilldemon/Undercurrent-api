@@ -14,6 +14,9 @@ target/
 # 本地敏感配置（数据库账号密码，绝不进仓库）
 config/application.yml
 
+# 本地 H2 文件库（个人开发数据，不进仓库）
+.h2data/
+
 # 日志 / 系统文件
 logs/
 *.log

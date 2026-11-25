@@ -1,0 +1,31 @@
+# 本地开发配置（H2 文件库，MySQL 兼容模式）
+# 用法：IDEA Run Configuration 里加 VM options: -Dspring.profiles.active=local
+# 或命令行：mvn spring-boot:run -Dspring-boot.run.profiles=local
+#
+# 放在外置 config/ 目录，优先级高于 config/application.yml（公司 MySQL 配置），
+# 所以只要激活 local profile，就一定会走这里的 H2 连接。
+#
+# 数据库文件：项目根目录下的 .h2data/（已加入 .gitignore，不会进仓库）
+# 脚本是幂等的：建表用 IF NOT EXISTS，灌数用 INSERT IGNORE，
+# 所以每次启动都会补齐缺失的表和种子数据，但不会覆盖你已经改过的数据。
+
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:./.h2data/undercurrent;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;AUTO_SERVER=TRUE
+    username: sa
+    password: ''
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  # 启动时自动建表 + 灌种子数据（仅 local profile 生效，公司 MySQL 启动不会执行）
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/h2/schema.sql
+      data-locations: classpath:db/h2/seed.sql
+      continue-on-error: false
+
+# 邮件验证码仍走 dev 模式（不打真实邮件），继承公共配置即可
