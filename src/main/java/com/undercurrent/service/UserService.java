@@ -1,6 +1,7 @@
 package com.undercurrent.service;
 
 import com.undercurrent.common.BusinessException;
+import com.undercurrent.domain.User;
 import com.undercurrent.mapper.UserMapper;
 import com.undercurrent.vo.UserProfileVO;
 import lombok.RequiredArgsConstructor;
@@ -71,5 +72,14 @@ public class UserService {
             return List.of();
         }
         return userMapper.selectFolloweeIds(viewerId);
+    }
+
+    /** 新注册用户 / 没走过引导的老用户返回 true，前端据此先跳 /onboarding */
+    public boolean needsOnboarding(Long userId) {
+        if (userId == null) {
+            return false;
+        }
+        User user = userMapper.selectOnboardingState(userId);
+        return user == null || user.getOnboardedAt() == null;
     }
 }

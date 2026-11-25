@@ -7,6 +7,10 @@
         SELECT name FROM genre ORDER BY sort_order, id
     </select>
 
+    <select id="selectGenreOptions" resultType="com.undercurrent.vo.GenreOptionVO">
+        SELECT name, category FROM genre ORDER BY sort_order, id
+    </select>
+
     <resultMap id="DictMap" type="com.undercurrent.domain.Dict">
         <id property="id" column="id"/>
         <result property="name" column="name"/>

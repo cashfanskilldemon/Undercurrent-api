@@ -25,6 +25,7 @@ CREATE TABLE app_user (
   avatar_hue      SMALLINT UNSIGNED NOT NULL DEFAULT 0    COMMENT '头像色相 0-360，前端据此生成色块',
   city            VARCHAR(50)         NULL                COMMENT '城市',
   role            VARCHAR(20)     NOT NULL DEFAULT '听众'  COMMENT '音乐人/制作人/插件作者/听众',
+  age_group       VARCHAR(20)         NULL                COMMENT '年龄段：18 岁以下/18-24/25-30/31-40/40 岁以上',
   bio             VARCHAR(255)        NULL                COMMENT '简介',
   followers_count INT UNSIGNED    NOT NULL DEFAULT 0      COMMENT '粉丝数（冗余，便于排序）',
   following_count INT UNSIGNED    NOT NULL DEFAULT 0      COMMENT '关注数',
@@ -33,6 +34,7 @@ CREATE TABLE app_user (
   status          TINYINT         NOT NULL DEFAULT 1      COMMENT '1 正常 0 禁用',
   created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  onboarded_at    DATETIME            NULL                COMMENT '完成/跳过注册引导的时间，NULL=未走过',
   PRIMARY KEY (id),
   UNIQUE KEY uk_handle (handle),
   UNIQUE KEY uk_phone (phone),
@@ -47,9 +49,11 @@ DROP TABLE IF EXISTS genre;
 CREATE TABLE genre (
   id         SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name       VARCHAR(30)       NOT NULL COMMENT 'Boom Bap / Trap / Phonk ...',
-  sort_order SMALLINT          NOT NULL DEFAULT 0,
+  category   VARCHAR(20)       NOT NULL DEFAULT '' COMMENT '分类：嘻哈/低音/电子/氛围/爵士/摇滚/民族/实验',
+  sort_order SMALLINT          NOT NULL DEFAULT 0 COMMENT '分类序*100+类内序，读取时按它分组',
   PRIMARY KEY (id),
-  UNIQUE KEY uk_name (name)
+  UNIQUE KEY uk_name (name),
+  KEY idx_sort (sort_order)
 ) ENGINE=InnoDB COMMENT='音乐流派';
 
 DROP TABLE IF EXISTS channel;
@@ -300,3 +304,18 @@ CREATE TABLE user_block (
   PRIMARY KEY (blocker_id, blocked_id),
   KEY idx_blocked (blocked_id)
 ) ENGINE=InnoDB COMMENT='用户拉黑关系';
+
+-- ------------------------------------------------------------
+-- 12. 用户偏好（注册引导：喜欢的风格 / 艺人）
+-- ------------------------------------------------------------
+DROP TABLE IF EXISTS user_interest;
+CREATE TABLE user_interest (
+  id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id    BIGINT UNSIGNED NOT NULL COMMENT '用户 id',
+  kind       VARCHAR(20)     NOT NULL COMMENT 'genre=流派 / artist=艺人',
+  ref        VARCHAR(50)     NOT NULL COMMENT '流派名，或艺人 user id',
+  created_at DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_user_kind_ref (user_id, kind, ref),
+  KEY idx_user (user_id)
+) ENGINE=InnoDB COMMENT='用户偏好（注册引导采集）';

@@ -43,4 +43,25 @@ public interface UserMapper {
 
     /** 被关注者 id 列表，供首页关注流使用 */
     List<Long> selectFolloweeIds(@Param("followerId") Long followerId);
+
+    /** 引导里选中的艺人是否都还存在（防止提交脏 id） */
+    int countExistingUsers(@Param("ids") List<Long> ids);
+
+    /** 引导状态：role / city / age_group / onboarded_at */
+    User selectOnboardingState(@Param("id") Long id);
+
+    /** 某个用户某类偏好（kind = genre / artist） */
+    List<String> selectInterestRefs(@Param("userId") Long userId, @Param("kind") String kind);
+
+    int deleteInterests(@Param("userId") Long userId);
+
+    int insertInterest(@Param("userId") Long userId,
+                       @Param("kind") String kind,
+                       @Param("ref") String ref);
+
+    /** 写回身份/城市/年龄段，并标记引导已走过 */
+    int updateOnboardingProfile(@Param("id") Long id,
+                                @Param("role") String role,
+                                @Param("city") String city,
+                                @Param("ageGroup") String ageGroup);
 }

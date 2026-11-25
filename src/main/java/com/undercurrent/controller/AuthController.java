@@ -99,6 +99,7 @@ public class AuthController {
         vo.setToken(tokenService.issue(userId));
         vo.setExpiresIn(tokenService.getTtlSeconds());
         vo.setUser(userService.detail(userId, userId));
+        vo.setNeedsOnboarding(userService.needsOnboarding(userId));
         return vo;
     }
 }

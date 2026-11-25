@@ -17,6 +17,8 @@ public class User {
     private Integer avatarHue;
     private String city;
     private String role;
+    /** 年龄段：18 岁以下 / 18-24 / 25-30 / 31-40 / 40 岁以上 */
+    private String ageGroup;
     private String bio;
     private Integer followersCount;
     private Integer followingCount;
@@ -26,4 +28,6 @@ public class User {
     private Integer status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    /** 完成/跳过注册引导的时间，null 表示还没走过引导 */
+    private LocalDateTime onboardedAt;
 }

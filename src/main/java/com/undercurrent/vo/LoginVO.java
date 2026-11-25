@@ -10,4 +10,6 @@ public class LoginVO {
     /** 有效期（秒） */
     private Long expiresIn;
     private UserProfileVO user;
+    /** true 表示还没走过注册引导，前端登录/注册后先跳 /onboarding */
+    private Boolean needsOnboarding;
 }

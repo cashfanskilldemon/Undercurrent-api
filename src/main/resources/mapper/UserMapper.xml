@@ -56,8 +56,9 @@
 
     <!-- 登录：不过滤 status，交给 Service 区分「密码错」和「账号禁用」；账号或手机号都能匹配 -->
     <select id="selectAuthByAccount" resultType="com.undercurrent.domain.User">
-        SELECT id, handle, phone, email, nickname, avatar_hue, city, role, bio,
-               followers_count, following_count, verified, password_hash, status
+        SELECT id, handle, phone, email, nickname, avatar_hue, city, role, age_group, bio,
+               followers_count, following_count, verified, password_hash, status,
+               created_at, updated_at, onboarded_at
         FROM app_user
         WHERE LOWER(handle) = LOWER(#{account})
            OR LOWER(email) = LOWER(#{account})
@@ -104,5 +105,42 @@
     <select id="selectFolloweeIds" resultType="java.lang.Long">
         SELECT followee_id FROM user_follow WHERE follower_id = #{followerId}
     </select>
+
+    <!-- ========== 注册引导（onboarding） ========== -->
+
+    <select id="selectOnboardingState" resultType="com.undercurrent.domain.User">
+        SELECT id, role, city, age_group, onboarded_at FROM app_user WHERE id = #{id}
+    </select>
+
+    <select id="countExistingUsers" resultType="int">
+        SELECT COUNT(*) FROM app_user
+        WHERE status = 1 AND id IN
+        <foreach collection="ids" item="it" open="(" separator="," close=")">#{it}</foreach>
+    </select>
+
+    <select id="selectInterestRefs" resultType="java.lang.String">
+        SELECT ref FROM user_interest
+        WHERE user_id = #{userId} AND kind = #{kind}
+        ORDER BY id
+    </select>
+
+    <delete id="deleteInterests">
+        DELETE FROM user_interest WHERE user_id = #{userId}
+    </delete>
+
+    <insert id="insertInterest">
+        INSERT IGNORE INTO user_interest (user_id, kind, ref) VALUES (#{userId}, #{kind}, #{ref})
+    </insert>
+
+    <update id="updateOnboardingProfile">
+        UPDATE app_user
+        <set>
+            <if test="role != null">role = #{role},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="ageGroup != null">age_group = #{ageGroup},</if>
+            onboarded_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
 
 </mapper>

@@ -1,0 +1,157 @@
+-- ============================================================
+-- 增量迁移：流派扩容 + 分类（注册引导用「泡泡云」展示）
+-- 目标库：Undercurrent_test
+-- 说明：只加列 + upsert 数据，可重复执行；1-61 号保留原 id（作品表有引用）
+-- 收录范围：当代与小众场景，不做 60-70 年代考古
+-- ============================================================
+
+USE Undercurrent_test;
+
+-- 1) genre.category：分类名，引导页按它分组/筛选
+SET @col_exists = (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = 'Undercurrent_test' AND TABLE_NAME = 'genre' AND COLUMN_NAME = 'category'
+);
+SET @sql = IF(@col_exists = 0,
+  'ALTER TABLE genre ADD COLUMN category VARCHAR(20) NOT NULL DEFAULT '''' COMMENT ''分类：嘻哈/低音/电子/氛围/爵士/摇滚/民族/实验'' AFTER name',
+  'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- 2) 流派全集（sort_order = 分类序 * 100 + 类内序，读取时按它顺序分组）
+INSERT INTO genre (name, category, sort_order) VALUES
+  ('Boom Bap', '嘻哈 / 说唱', 101),
+  ('Jazz Rap', '嘻哈 / 说唱', 102),
+  ('Trap', '嘻哈 / 说唱', 103),
+  ('Drill', '嘻哈 / 说唱', 104),
+  ('Phonk', '嘻哈 / 说唱', 105),
+  ('Memphis Rap', '嘻哈 / 说唱', 106),
+  ('G-Funk', '嘻哈 / 说唱', 107),
+  ('Cloud Rap', '嘻哈 / 说唱', 108),
+  ('Emo Rap', '嘻哈 / 说唱', 109),
+  ('Trap Soul', '嘻哈 / 说唱', 110),
+  ('Plugg', '嘻哈 / 说唱', 111),
+  ('Rage', '嘻哈 / 说唱', 112),
+  ('Detroit Rap', '嘻哈 / 说唱', 113),
+  ('Chopped & Screwed', '嘻哈 / 说唱', 114),
+  ('Hyphy', '嘻哈 / 说唱', 115),
+  -- 低音 / 俱乐部
+  ('UK Bass', '低音 / 俱乐部', 201),
+  ('Dubstep', '低音 / 俱乐部', 202),
+  ('Drum & Bass', '低音 / 俱乐部', 203),
+  ('Jungle', '低音 / 俱乐部', 204),
+  ('Breakcore', '低音 / 俱乐部', 205),
+  ('Footwork', '低音 / 俱乐部', 206),
+  ('Jersey Club', '低音 / 俱乐部', 207),
+  ('2-Step', '低音 / 俱乐部', 208),
+  ('Baile Funk', '低音 / 俱乐部', 209),
+  ('Amapiano', '低音 / 俱乐部', 210),
+  ('Grime', '低音 / 俱乐部', 211),
+  ('UK Garage', '低音 / 俱乐部', 212),
+  ('Speed Garage', '低音 / 俱乐部', 213),
+  ('Bassline', '低音 / 俱乐部', 214),
+  ('Liquid DnB', '低音 / 俱乐部', 215),
+  ('Neurofunk', '低音 / 俱乐部', 216),
+  ('Jump Up', '低音 / 俱乐部', 217),
+  ('Halftime', '低音 / 俱乐部', 218),
+  ('Riddim', '低音 / 俱乐部', 219),
+  ('Breakbeat Hardcore', '低音 / 俱乐部', 220),
+  ('Gabber', '低音 / 俱乐部', 221),
+  ('Hard Drum', '低音 / 俱乐部', 222),
+  ('Gqom', '低音 / 俱乐部', 223),
+  ('Baltimore Club', '低音 / 俱乐部', 224),
+  -- 电子 / 舞曲
+  ('House', '电子 / 舞曲', 301),
+  ('Deep House', '电子 / 舞曲', 302),
+  ('Techno', '电子 / 舞曲', 303),
+  ('Trance', '电子 / 舞曲', 304),
+  ('Electro', '电子 / 舞曲', 305),
+  ('Synthwave', '电子 / 舞曲', 306),
+  ('Vaporwave', '电子 / 舞曲', 307),
+  ('Hyperpop', '电子 / 舞曲', 308),
+  ('Tech House', '电子 / 舞曲', 309),
+  ('Minimal', '电子 / 舞曲', 310),
+  ('Progressive House', '电子 / 舞曲', 311),
+  ('Acid House', '电子 / 舞曲', 312),
+  ('Afro House', '电子 / 舞曲', 313),
+  ('Melodic Techno', '电子 / 舞曲', 314),
+  ('Hard Techno', '电子 / 舞曲', 315),
+  ('Psytrance', '电子 / 舞曲', 316),
+  ('Hardstyle', '电子 / 舞曲', 317),
+  ('Nu-Disco', '电子 / 舞曲', 318),
+  ('French House', '电子 / 舞曲', 319),
+  ('Breakbeat', '电子 / 舞曲', 320),
+  ('Future Garage', '电子 / 舞曲', 321),
+  ('Big Beat', '电子 / 舞曲', 322),
+  -- 氛围 / 慢速
+  ('Lo-fi', '氛围 / 慢速', 401),
+  ('Chillhop', '氛围 / 慢速', 402),
+  ('Ambient', '氛围 / 慢速', 403),
+  ('Drone', '氛围 / 慢速', 404),
+  ('Trip Hop', '氛围 / 慢速', 405),
+  ('Downtempo', '氛围 / 慢速', 406),
+  ('Bedroom Pop', '氛围 / 慢速', 407),
+  ('Modern Classical', '氛围 / 慢速', 408),
+  ('Dark Ambient', '氛围 / 慢速', 409),
+  ('Ambient Techno', '氛围 / 慢速', 410),
+  ('Chillwave', '氛围 / 慢速', 411),
+  ('Slowcore', '氛围 / 慢速', 412),
+  -- 爵士 / 灵魂
+  ('Jazz', '爵士 / 灵魂', 501),
+  ('Fusion', '爵士 / 灵魂', 502),
+  ('Neo-Soul', '爵士 / 灵魂', 503),
+  ('Funk', '爵士 / 灵魂', 504),
+  ('R&B', '爵士 / 灵魂', 505),
+  ('Gospel', '爵士 / 灵魂', 506),
+  ('Bossa Nova', '爵士 / 灵魂', 507),
+  ('Nu-Jazz', '爵士 / 灵魂', 508),
+  ('Broken Beat', '爵士 / 灵魂', 509),
+  ('Future Soul', '爵士 / 灵魂', 510),
+  ('Alternative R&B', '爵士 / 灵魂', 511),
+  ('Acid Jazz', '爵士 / 灵魂', 512),
+  -- 摇滚 / 独立
+  ('Indie Rock', '摇滚 / 独立', 601),
+  ('Shoegaze', '摇滚 / 独立', 602),
+  ('Post-Rock', '摇滚 / 独立', 603),
+  ('Math Rock', '摇滚 / 独立', 604),
+  ('Punk', '摇滚 / 独立', 605),
+  ('Post-Punk', '摇滚 / 独立', 606),
+  ('Metal', '摇滚 / 独立', 607),
+  ('Dream Pop', '摇滚 / 独立', 608),
+  ('Noise Rock', '摇滚 / 独立', 609),
+  ('Midwest Emo', '摇滚 / 独立', 610),
+  ('Screamo', '摇滚 / 独立', 611),
+  ('Post-Hardcore', '摇滚 / 独立', 612),
+  ('Djent', '摇滚 / 独立', 613),
+  ('Blackgaze', '摇滚 / 独立', 614),
+  -- 民族 / 世界
+  ('Dub', '民族 / 世界', 701),
+  ('Reggae', '民族 / 世界', 702),
+  ('Dancehall', '民族 / 世界', 703),
+  ('Afrobeat', '民族 / 世界', 704),
+  ('Latin', '民族 / 世界', 705),
+  ('Cumbia', '民族 / 世界', 706),
+  ('国风', '民族 / 世界', 707),
+  ('Afrobeats', '民族 / 世界', 708),
+  ('Alté', '民族 / 世界', 709),
+  ('Reggaeton', '民族 / 世界', 710),
+  ('Dembow', '民族 / 世界', 711),
+  ('Moombahton', '民族 / 世界', 712),
+  ('Kizomba', '民族 / 世界', 713),
+  ('Zouk', '民族 / 世界', 714),
+  ('Soca', '民族 / 世界', 715),
+  -- 实验 / 声音
+  ('IDM', '实验 / 声音', 801),
+  ('Glitch', '实验 / 声音', 802),
+  ('Noise', '实验 / 声音', 803),
+  ('Sound Design', '实验 / 声音', 804),
+  ('影视配乐', '实验 / 声音', 805),
+  ('Deconstructed Club', '实验 / 声音', 806),
+  ('Post-Club', '实验 / 声音', 807),
+  ('Plunderphonics', '实验 / 声音', 808),
+  ('Industrial', '实验 / 声音', 809),
+  ('Experimental', '实验 / 声音', 810),
+  ('Chiptune', '实验 / 声音', 811),
+  ('Field Recording', '实验 / 声音', 812)
+ON DUPLICATE KEY UPDATE category = VALUES(category), sort_order = VALUES(sort_order);
