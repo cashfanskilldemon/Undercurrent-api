@@ -33,7 +33,9 @@ public class OnboardingService {
 
     private static final String KIND_GENRE = "genre";
     private static final String KIND_ARTIST = "artist";
-    private static final List<String> ROLES = List.of("听众", "制作人", "音乐人", "插件作者");
+    private static final List<String> ROLES = List.of(
+            "听众", "制作人", "音乐人", "插件作者",
+            "DJ", "录音师", "乐评人", "场地主理人");
     private static final List<String> AGE_GROUPS =
             List.of("18 岁以下", "18-24", "25-30", "31-40", "40 岁以上");
     private static final List<String> CITIES = List.of(
