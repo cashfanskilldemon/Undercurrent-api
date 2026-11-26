@@ -16,8 +16,8 @@ public class OnboardingVO {
     private List<String> genres;
     /** 可选的流派按分类分组（宽屏泡泡云用） */
     private List<GenreGroupVO> genreGroups;
-    /** 可选的艺人（按粉丝数排序的推荐列表） */
-    private List<UserProfileVO> artists;
+    /** 可选的艺人（每类取若干、按流派交错排列，带实体头像） */
+    private List<ArtistVO> artists;
     private List<String> roles;
     private List<String> ageGroups;
     private List<String> cities;

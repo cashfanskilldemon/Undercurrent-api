@@ -3,8 +3,10 @@ package com.undercurrent.service;
 import com.undercurrent.common.BusinessException;
 import com.undercurrent.domain.User;
 import com.undercurrent.dto.OnboardingRequest;
+import com.undercurrent.mapper.ArtistMapper;
 import com.undercurrent.mapper.MetaMapper;
 import com.undercurrent.mapper.UserMapper;
+import com.undercurrent.vo.ArtistVO;
 import com.undercurrent.vo.GenreOptionVO;
 import com.undercurrent.vo.OnboardingVO;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +42,12 @@ public class OnboardingService {
     /** 防御性上限：就算前端被改也不至于一次写几百条 */
     private static final int MAX_GENRES = 12;
     private static final int MAX_ARTISTS = 30;
+    /** 引导页每个流派摆几位艺人（Web 宽屏按流派分行横向滑动，8 类 × 60 = 480 张卡） */
+    private static final int ARTISTS_PER_CATEGORY = 60;
 
     private final UserMapper userMapper;
     private final MetaMapper metaMapper;
+    private final ArtistMapper artistMapper;
 
     /** 引导页所需数据：可选项 + 已选内容 + 是否还需要引导 */
     public OnboardingVO load(Long userId) {
@@ -58,7 +63,7 @@ public class OnboardingService {
         vo.setNeedsOnboarding(state.getOnboardedAt() == null);
         vo.setGenres(metaMapper.selectGenres());
         vo.setGenreGroups(groupGenres());
-        vo.setArtists(userMapper.selectSuggested(userId, null, 12));
+        vo.setArtists(pickArtists(artistMapper.selectForOnboarding(ARTISTS_PER_CATEGORY)));
         vo.setRoles(ROLES);
         vo.setAgeGroups(AGE_GROUPS);
         vo.setCities(CITIES);
@@ -93,7 +98,7 @@ public class OnboardingService {
 
         List<String> genres = sanitizeGenres(request.getGenres());
         List<Long> artistIds = sanitizeArtists(request.getArtistIds());
-        if (!artistIds.isEmpty() && userMapper.countExistingUsers(artistIds) != artistIds.size()) {
+        if (!artistIds.isEmpty() && artistMapper.countExisting(artistIds) != artistIds.size()) {
             throw new BusinessException(400, "有艺人已下线，请刷新后重试");
         }
 
@@ -129,6 +134,37 @@ public class OnboardingService {
             group.getGenres().add(option.getName());
         }
         return new ArrayList<>(byCategory.values());
+    }
+
+    /**
+     * 艺人卡按流派交错排：先各流派的第 1 名，再各流派的第 2 名……
+     * 首屏就不会全被同一个风格占满，一位艺人属于多个流派时只留一行。
+     */
+    private List<ArtistVO> pickArtists(List<ArtistVO> rows) {
+        Map<String, List<ArtistVO>> byCategory = new LinkedHashMap<>();
+        for (ArtistVO row : rows) {
+            String category = (row.getCategory() == null || row.getCategory().isBlank())
+                    ? "其他" : row.getCategory();
+            byCategory.computeIfAbsent(category, key -> new ArrayList<>()).add(row);
+        }
+        List<ArtistVO> out = new ArrayList<>();
+        Set<Long> seen = new LinkedHashSet<>();
+        int maxPerCategory = 0;
+        for (List<ArtistVO> list : byCategory.values()) {
+            maxPerCategory = Math.max(maxPerCategory, list.size());
+        }
+        for (int rank = 0; rank < maxPerCategory; rank++) {
+            for (List<ArtistVO> list : byCategory.values()) {
+                if (rank >= list.size()) {
+                    continue;
+                }
+                ArtistVO row = list.get(rank);
+                if (seen.add(row.getId())) {
+                    out.add(row);
+                }
+            }
+        }
+        return out;
     }
 
     /** 只接受字典里真实存在的流派，去重并截断 */

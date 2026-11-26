@@ -1,0 +1,207 @@
+# 人工剔除名单：太古早的、太土的、合集/厂牌号
+# 一行一个，按艺人名精确匹配；改完跑 `--select-only` 即可重新生成，不用重新联网。
+# 目前主要清掉三类：
+#   1) 爵士/灵魂里的上古大神（Coltrane、Miles、Ella 那一代）
+#   2) 轻音乐标签下的钢琴翻弹号、白噪音号
+#   3) 民谣标签下的 60-80 年代唱作人和台湾校园民歌
+
+# ---- 爵士/灵魂：上古 & 已故大师 ----
+John Coltrane
+Bill Evans
+Ornette Coleman
+Cecil Taylor
+Diana Krall
+Albert Ayler
+Louis Armstrong
+Ella Fitzgerald
+Lee Morgan
+Cannonball Adderley
+Miles Davis
+Stan Getz
+Archie Shepp
+Johnny Hartman
+Hank Mobley
+Eric Dolphy
+Bill Charlap
+Oscar Peterson
+Pat Metheny
+Dexter Gordon
+Sonny Rollins
+Julius Hemphill
+Anthony Braxton
+Pharoah Sanders
+Horace Silver
+Freddie Hubbard
+Paul Desmond
+Charlie Haden
+Paul Motian
+Sonny Sharrock
+The Art Ensemble of Chicago
+Sun Ra
+Wynton Marsalis
+Tord Gustavsen
+Jarle Vespestad
+Chet Baker
+Jim Hall
+Art Blakey
+Clifford Brown
+Sonny Clark
+Sonny Stitt
+Pat Martino
+Jacky Terrasson
+Jamie Cullum
+Brad Mehldau
+Nils Landgren
+Hara Noda
+
+# ---- 氛围/慢速：钢琴翻弹号、白噪音合集 ----
+Piano Tribute Players
+Piano Covers Club
+Smooth Piano Masters
+Lofi Alumni
+Ballroom Jazz Collective
+Steve Wingfield
+Martin Ermen
+Robert Anderson
+David Osborne
+Riyandi Kusuma
+Max Arnald
+Kirsten Agresta Copely
+Etne Skiöld
+Lavinia Meijer
+Dan Gibson
+Akio
+Eric Rowland
+Carl Bagge Trio
+V.A.
+涵乐集
+甘仕良
+文武贝
+北落
+李根
+城之内ミサ
+和平之月
+侯长青
+谢少华
+众乐纪
+廖里文程
+昼夜
+谭炎健
+Belleville
+FutureEngine Works（未来引擎厂）
+余天易
+Jesse T
+赵海洋
+姜创钢琴
+CMJ
+疗愈轻音乐
+哏德全
+彗星表面
+徐超然
+自得琴社
+崔江卉
+裴去病
+何Inka
+沈波
+一宁
+LokLok Piano
+
+# ---- 民族/世界：60-80 年代唱作人、台湾校园民歌 ----
+Bob Dylan
+Neil Young
+Joan Baez
+Peter, Paul & Mary
+Simon & Garfunkel
+Nick Drake
+Donovan
+Leonard Cohen
+Joni Mitchell
+John Renbourn
+Bert Jansch
+Woody Guthrie
+Townes Van Zandt
+Édith Piaf
+Serge Gainsbourg
+Amália Rodrigues
+Clara Nunes
+Nelson Cavaquinho
+Cartola
+Gabby Pahinui
+Munir Bashir
+Kongar-ol Ondar
+八木美知依
+岸部眞明
+齐豫
+包美圣
+李建复
+陈明韶
+潘越云
+王新莲
+施孝荣
+邰肇玫
+罗大佑
+蔡琴
+嘉茵
+
+# ---- 第二轮：仍然偏老的名字、单字母噪音号 ----
+The Modern Jazz Quartet
+Dizzy Gillespie
+Chick Corea
+Keith Jarrett
+Jan Garbarek
+Eddie Higgins Trio
+山本剛トリオ
+Sue Foley
+Robert de Boron
+国蛋
+A
+D
+J
+AK
+InfiniteMusic
+幸子小姐拜托了
+Ali Farka Touré
+Fela Kuti
+Césaria Évora
+Compay Segundo
+Omara Portuondo
+Freddy Cole
+Bonga
+Jon Mark
+
+# ---- 第三轮：九十年代老牌、偶像/流行串味、明显跑题的 ----
+2Pac
+The Notorious B.I.G.
+Dr. Dre
+A Tribe Called Quest
+The Pharcyde
+Method Man
+Snoop Dogg
+JAŸ-Z
+时代少年团
+江映蓉
+张艺兴
+刘雨昕XIN LIU
+Earth, Wind & Fire
+Cascada
+Groove Coverage
+Kylie Minogue
+Owl City
+Bruno Mars
+Beyoncé
+Carly Rae Jepsen
+Paul van Dyk
+Sia
+Led Zeppelin
+The Beatles
+The Beach Boys
+The Rolling Stones
+Blur
+Oasis
+Justin Bieber
+aespa
+颜人中
+DJ阿智
+巫娜
+顶楼的马戏团
+狗毛

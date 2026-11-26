@@ -117,18 +117,18 @@ INSERT IGNORE INTO genre (id, name, category, sort_order) VALUES
   (117, 'Kizomba', '民族 / 世界', 713),
   (118, 'Zouk', '民族 / 世界', 714),
   (119, 'Soca', '民族 / 世界', 715),
-  (57, 'IDM', '实验 / 声音', 801),
-  (58, 'Glitch', '实验 / 声音', 802),
-  (59, 'Noise', '实验 / 声音', 803),
-  (60, 'Sound Design', '实验 / 声音', 804),
-  (61, '影视配乐', '实验 / 声音', 805),
-  (120, 'Deconstructed Club', '实验 / 声音', 806),
-  (121, 'Post-Club', '实验 / 声音', 807),
-  (122, 'Plunderphonics', '实验 / 声音', 808),
-  (123, 'Industrial', '实验 / 声音', 809),
-  (124, 'Experimental', '实验 / 声音', 810),
-  (125, 'Chiptune', '实验 / 声音', 811),
-  (126, 'Field Recording', '实验 / 声音', 812);
+  (57, 'IDM', '实验 / 前卫', 801),
+  (58, 'Glitch', '实验 / 前卫', 802),
+  (59, 'Noise', '实验 / 前卫', 803),
+  (60, 'Sound Design', '实验 / 前卫', 804),
+  (61, '影视配乐', '实验 / 前卫', 805),
+  (120, 'Deconstructed Club', '实验 / 前卫', 806),
+  (121, 'Post-Club', '实验 / 前卫', 807),
+  (122, 'Plunderphonics', '实验 / 前卫', 808),
+  (123, 'Industrial', '实验 / 前卫', 809),
+  (124, 'Experimental', '实验 / 前卫', 810),
+  (125, 'Chiptune', '实验 / 前卫', 811),
+  (126, 'Field Recording', '实验 / 前卫', 812);
 
 -- 讨论频道（"全部"是前端虚拟项，不入库）
 INSERT IGNORE INTO channel (id, name, slug, sort_order) VALUES (1, '作品反馈', 'feedback', 1);

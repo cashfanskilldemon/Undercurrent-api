@@ -1,0 +1,307 @@
+# 人工指定的艺人：优先放进对应流派行的前排，风格/辨识度优先，不走歌单频次
+
+# ---- 中国地下音乐圈：影响力和辨识度都够，优先展示 ----
+嘻哈 / 说唱|Losty
+嘻哈 / 说唱|谢帝
+嘻哈 / 说唱|Ty.
+嘻哈 / 说唱|Jony J
+嘻哈 / 说唱|AR刘夫阳
+嘻哈 / 说唱|布瑞吉Bridge
+嘻哈 / 说唱|雾都L4WUDU
+嘻哈 / 说唱|Higher Brothers
+嘻哈 / 说唱|Melo
+嘻哈 / 说唱|王齐铭WatchMe
+嘻哈 / 说唱|李佳隆
+嘻哈 / 说唱|邓典果DDG
+嘻哈 / 说唱|皇昶枢（MULA SAKEE）
+嘻哈 / 说唱|李尔新
+嘻哈 / 说唱|建坤YOUNG
+嘻哈 / 说唱|jackzebra
+嘻哈 / 说唱|Yoyi
+嘻哈 / 说唱|Yinsu
+嘻哈 / 说唱|Narc1ssu
+嘻哈 / 说唱|Ice Paper
+嘻哈 / 说唱|FOX胡天渝
+嘻哈 / 说唱|马赫mood
+嘻哈 / 说唱|扬布拉德
+嘻哈 / 说唱|亚当魔星
+嘻哈 / 说唱|MUSIKEY
+嘻哈 / 说唱|Drogas
+嘻哈 / 说唱|Billionhappy
+
+摇滚 / 独立|痛仰乐队
+摇滚 / 独立|谢天笑
+摇滚 / 独立|窦唯
+摇滚 / 独立|唐朝乐队
+摇滚 / 独立|黑豹乐队
+摇滚 / 独立|病蛹乐队
+摇滚 / 独立|骨肉皮
+摇滚 / 独立|新裤子
+摇滚 / 独立|二手玫瑰
+摇滚 / 独立|万能青年旅店
+摇滚 / 独立|刺猬
+摇滚 / 独立|左小祖咒
+摇滚 / 独立|重塑雕像的权利
+摇滚 / 独立|假假條
+摇滚 / 独立|蛙池
+摇滚 / 独立|Chinese Football
+
+实验 / 前卫|Sulumi
+实验 / 前卫|Dead J
+实验 / 前卫|Howie Lee
+实验 / 前卫|废墟乐队
+
+电子 / 舞曲|B6
+电子 / 舞曲|Zhao Dai
+
+# 格式：流派|艺人名（一行一个，# 开头是注释）
+嘻哈 / 说唱|Lil Skies
+嘻哈 / 说唱|Lil Mosey
+嘻哈 / 说唱|Don Toliver
+嘻哈 / 说唱|Lil Tecca
+嘻哈 / 说唱|Juice WRLD
+嘻哈 / 说唱|Lancey Foux
+嘻哈 / 说唱|OsamaSon
+嘻哈 / 说唱|Rich Amiri
+嘻哈 / 说唱|Playboi Carti
+嘻哈 / 说唱|Ken Carson
+嘻哈 / 说唱|Yeat
+嘻哈 / 说唱|Destroy Lonely
+嘻哈 / 说唱|Xaviersobased
+嘻哈 / 说唱|Nettspend
+嘻哈 / 说唱|Central Cee
+嘻哈 / 说唱|Pop Smoke
+嘻哈 / 说唱|Polo G
+嘻哈 / 说唱|Lil Durk
+嘻哈 / 说唱|NBA YoungBoy
+嘻哈 / 说唱|Kodak Black
+嘻哈 / 说唱|Ski Mask the Slump God
+嘻哈 / 说唱|Lil Yachty
+嘻哈 / 说唱|Baby Keem
+
+低音 / 俱乐部|Fred again..
+低音 / 俱乐部|Barry Can't Swim
+低音 / 俱乐部|Overmono
+低音 / 俱乐部|Sub Focus
+低音 / 俱乐部|Chase & Status
+低音 / 俱乐部|Netsky
+低音 / 俱乐部|Wilkinson
+低音 / 俱乐部|High Contrast
+
+电子 / 舞曲|Jamie xx
+电子 / 舞曲|Four Tet
+电子 / 舞曲|Bicep
+电子 / 舞曲|Caribou
+电子 / 舞曲|A. G. Cook
+电子 / 舞曲|Danny L Harle
+电子 / 舞曲|Porter Robinson
+电子 / 舞曲|Madeon
+
+氛围 / 慢速|Hiroshi Yoshimura
+氛围 / 慢速|Ichiko Aoba
+氛围 / 慢速|William Basinski
+氛围 / 慢速|Gigi Masin
+氛围 / 慢速|Nala Sinephro
+
+爵士 / 灵魂|BADBADNOTGOOD
+爵士 / 灵魂|Kamasi Washington
+爵士 / 灵魂|Robert Glasper
+爵士 / 灵魂|Anderson .Paak
+爵士 / 灵魂|Thundercat
+爵士 / 灵魂|Cleo Sol
+爵士 / 灵魂|SAULT
+爵士 / 灵魂|Mahalia
+爵士 / 灵魂|Yussef Dayes
+爵士 / 灵魂|Ezra Collective
+
+摇滚 / 独立|Black Country, New Road
+摇滚 / 独立|Squid
+摇滚 / 独立|Shame
+摇滚 / 独立|Yard Act
+摇滚 / 独立|The Last Dinner Party
+摇滚 / 独立|English Teacher
+摇滚 / 独立|Geese
+摇滚 / 独立|Big Thief
+摇滚 / 独立|Wednesday
+
+实验 / 前卫|SOPHIE
+实验 / 前卫|Autechre
+实验 / 前卫|Aphex Twin
+实验 / 前卫|Oneohtrix Point Never
+实验 / 前卫|Boards of Canada
+实验 / 前卫|Holly Herndon
+实验 / 前卫|Jlin
+实验 / 前卫|Death Grips
+实验 / 前卫|clipping.
+实验 / 前卫|JPEGMAFIA
+实验 / 前卫|Danny Brown
+实验 / 前卫|Yves Tumor
+
+# ---- 补充：每个流派 20 位「玩这个风格的人」，第二轮 ----
+嘻哈 / 说唱|Travis Scott
+嘻哈 / 说唱|Tyler, The Creator
+嘻哈 / 说唱|A$AP Rocky
+嘻哈 / 说唱|21 Savage
+嘻哈 / 说唱|Future
+嘻哈 / 说唱|Young Thug
+嘻哈 / 说唱|Migos
+嘻哈 / 说唱|Gunna
+嘻哈 / 说唱|Roddy Ricch
+嘻哈 / 说唱|Vince Staples
+嘻哈 / 说唱|Schoolboy Q
+嘻哈 / 说唱|Rae Sremmurd
+嘻哈 / 说唱|Chief Keef
+嘻哈 / 说唱|Waka Flocka Flame
+嘻哈 / 说唱|Denzel Curry
+嘻哈 / 说唱|Big Sean
+嘻哈 / 说唱|Kid Cudi
+嘻哈 / 说唱|J. Cole
+嘻哈 / 说唱|Lil Nas X
+嘻哈 / 说唱|Slim Jxmmi
+
+低音 / 俱乐部|Excision
+低音 / 俱乐部|Zeds Dead
+低音 / 俱乐部|Rezz
+低音 / 俱乐部|Disclosure
+低音 / 俱乐部|Jungle
+低音 / 俱乐部|Moderat
+低音 / 俱乐部|Bonobo
+低音 / 俱乐部|DJ Koze
+低音 / 俱乐部|Dixon
+低音 / 俱乐部|Honey Dijon
+低音 / 俱乐部|Anyma
+低音 / 俱乐部|deadmau5
+低音 / 俱乐部|Eric Prydz
+低音 / 俱乐部|Kaskade
+低音 / 俱乐部|Steve Aoki
+低音 / 俱乐部|Flume
+低音 / 俱乐部|ODESZA
+低音 / 俱乐部|Above & Beyond
+低音 / 俱乐部|Gareth Emery
+低音 / 俱乐部|Virtual Riot
+
+电子 / 舞曲|Chris Lake
+电子 / 舞曲|Mau P
+电子 / 舞曲|John Summit
+电子 / 舞曲|Dom Dolla
+电子 / 舞曲|Odd Mob
+电子 / 舞曲|Richie Hawtin
+电子 / 舞曲|Nina Kraviz
+电子 / 舞曲|Monolink
+电子 / 舞曲|Rüfüs du Sol
+电子 / 舞曲|Maribou State
+电子 / 舞曲|FISHER
+电子 / 舞曲|Alok
+电子 / 舞曲|Zedd
+电子 / 舞曲|Martin Garrix
+电子 / 舞曲|Hardwell
+电子 / 舞曲|Tiësto
+电子 / 舞曲|Armin van Buuren
+电子 / 舞曲|David Guetta
+电子 / 舞曲|Charlotte de Witte
+电子 / 舞曲|Amelie Lens
+
+氛围 / 慢速|Khruangbin
+氛围 / 慢速|Tycho
+氛围 / 慢速|Emancipator
+氛围 / 慢速|Ólafur Arnalds
+氛围 / 慢速|Nils Frahm
+氛围 / 慢速|Max Richter
+氛围 / 慢速|C418
+氛围 / 慢速|Ryuichi Sakamoto
+氛围 / 慢速|Moby
+氛围 / 慢速|Röyksopp
+氛围 / 慢速|Air
+氛围 / 慢速|A Winged Victory for the Sullen
+氛围 / 慢速|Stars of the Lid
+氛围 / 慢速|Broadcast
+氛围 / 慢速|Grouper
+氛围 / 慢速|Jonce
+氛围 / 慢速|Hania Rani
+氛围 / 慢速|Anna Meredith
+氛围 / 慢速|Kiasmos
+氛围 / 慢速|Jóhann Jóhannsson
+
+爵士 / 灵魂|H.E.R.
+爵士 / 灵魂|SZA
+爵士 / 灵魂|Summer Walker
+爵士 / 灵魂|Jhené Aiko
+爵士 / 灵魂|Frank Ocean
+爵士 / 灵魂|Terrace Martin
+爵士 / 灵魂|The Comet Is Coming
+爵士 / 灵魂|Shabaka Hutchings
+爵士 / 灵魂|Moses Sumney
+爵士 / 灵魂|Nick Hakim
+爵士 / 灵魂|Jorja Smith
+爵士 / 灵魂|Lianne La Havas
+爵士 / 灵魂|Ravyn Lenae
+爵士 / 灵魂|Kiana Ledé
+爵士 / 灵魂|Alina Baraz
+爵士 / 灵魂|Emeli Sandé
+爵士 / 灵魂|Yebba
+爵士 / 灵魂|Lucky Daye
+爵士 / 灵魂|Gallant
+爵士 / 灵魂|Snoh Aalegra
+
+摇滚 / 独立|Arctic Monkeys
+摇滚 / 独立|The 1975
+摇滚 / 独立|Glass Animals
+摇滚 / 独立|Tame Impala
+摇滚 / 独立|MGMT
+摇滚 / 独立|Mitski
+摇滚 / 独立|Japanese Breakfast
+摇滚 / 独立|Snail Mail
+摇滚 / 独立|The National
+摇滚 / 独立|Interpol
+摇滚 / 独立|Bloc Party
+摇滚 / 独立|Franz Ferdinand
+摇滚 / 独立|Foals
+摇滚 / 独立|Alt-J
+摇滚 / 独立|Two Door Cinema Club
+摇滚 / 独立|Black Midi
+摇滚 / 独立|Dry Cleaning
+摇滚 / 独立|Sleaford Mods
+摇滚 / 独立|Parquet Courts
+摇滚 / 独立|The War on Drugs
+
+民族 / 世界|Black Coffee
+民族 / 世界|Master KG
+民族 / 世界|Kamo Mphela
+民族 / 世界|Uncle Waffles
+民族 / 世界|Ami Faku
+民族 / 世界|Sho Madjozi
+民族 / 世界|Bomba Estéreo
+民族 / 世界|Rosalía
+民族 / 世界|C. Tangana
+民族 / 世界|Anoushka Shankar
+民族 / 世界|Mdou Moctar
+民族 / 世界|Songhoy Blues
+民族 / 世界|Imany
+民族 / 世界|Yemi Alade
+民族 / 世界|Orchestra Baobab
+民族 / 世界|Ayo
+民族 / 世界|Zaz
+民族 / 世界|Carminho
+民族 / 世界|Mariza
+民族 / 世界|Nneka
+
+实验 / 前卫|Squarepusher
+实验 / 前卫|Venetian Snares
+实验 / 前卫|Actress
+实验 / 前卫|Blawan
+实验 / 前卫|Burial
+实验 / 前卫|Kode9
+实验 / 前卫|Roly Porter
+实验 / 前卫|Ben Frost
+实验 / 前卫|Tim Hecker
+实验 / 前卫|Floating Points
+实验 / 前卫|Mica Levi
+实验 / 前卫|Katie Gately
+实验 / 前卫|Chat Pile
+实验 / 前卫|Sunn O)))
+实验 / 前卫|Zach Hill
+实验 / 前卫|Boredoms
+实验 / 前卫|Melt-Banana
+实验 / 前卫|Merzbow
+实验 / 前卫|Richard D. James
+实验 / 前卫|Yun

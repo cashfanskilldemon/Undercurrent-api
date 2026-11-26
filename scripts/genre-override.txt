@@ -1,0 +1,30 @@
+# 风格映射人工校正：艺人名|目标流派，或 艺人名|DROP（直接剔除）
+# 修正歌单频次抓出来的串味：流行歌手混进世界音乐/俱乐部、摇滚乐队混进实验等。
+Chris Brown|DROP
+BTS (防弹少年团)|DROP
+Drake|嘻哈 / 说唱
+WizTheMC|DROP
+Brand X Music|DROP
+bees & honey|DROP
+Chop Daily|嘻哈 / 说唱
+Tayc|DROP
+liBianca|DROP
+DARKoO|DROP
+多芬DolBeatz|DROP
+Charli xcx|电子 / 舞曲
+Lady Gaga|电子 / 舞曲
+Bebe Rexha|电子 / 舞曲
+Ellie Goulding|电子 / 舞曲
+Susie Ledge|DROP
+Cari|DROP
+Tuxedo|电子 / 舞曲
+五条人|摇滚 / 独立
+舌头|摇滚 / 独立
+Carsick Cars|摇滚 / 独立
+荷尔蒙小姐|摇滚 / 独立
+Chainhaha|摇滚 / 独立
+本能實業|摇滚 / 独立
+鱼条 Fish Stick|摇滚 / 独立
+Taiga乐队|摇滚 / 独立
+沼泽|摇滚 / 独立
+Kawa乐队|民族 / 世界

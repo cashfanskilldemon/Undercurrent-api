@@ -25,7 +25,8 @@ spring:
     init:
       mode: always
       schema-locations: classpath:db/h2/schema.sql
-      data-locations: classpath:db/h2/seed.sql
+      # 艺人种子按日期归档，一眼能看出数据版本；由 scripts/fetch_netease_artists.py 生成
+      data-locations: classpath:db/h2/seed.sql,classpath:db/2026-11-26/artist-seed.sql
       continue-on-error: false
 
 # 邮件验证码仍走 dev 模式（不打真实邮件），继承公共配置即可

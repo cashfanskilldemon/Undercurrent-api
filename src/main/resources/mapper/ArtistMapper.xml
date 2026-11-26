@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.undercurrent.mapper.ArtistMapper">
+
+    <resultMap id="ArtistMap" type="com.undercurrent.vo.ArtistVO">
+        <id property="id" column="id"/>
+        <result property="neteaseId" column="netease_id"/>
+        <result property="name" column="name"/>
+        <result property="alias" column="alias"/>
+        <result property="avatar" column="avatar"/>
+        <result property="bio" column="bio"/>
+        <result property="category" column="category"/>
+        <result property="musicSize" column="music_size"/>
+        <result property="albumSize" column="album_size"/>
+    </resultMap>
+
+    <sql id="artistColumns">
+        a.id, a.netease_id, a.name, a.alias, a.avatar, a.bio, a.music_size, a.album_size, ag.category
+    </sql>
+
+    <select id="selectForOnboarding" resultMap="ArtistMap">
+        SELECT <include refid="artistColumns"/>
+        FROM artist a
+        JOIN artist_genre ag ON ag.artist_id = a.id
+        WHERE ag.sort_order &lt;= #{perCategory}
+        ORDER BY ag.category, ag.sort_order
+    </select>
+
+    <select id="selectByIds" resultMap="ArtistMap">
+        SELECT <include refid="artistColumns"/>
+        FROM artist a
+        LEFT JOIN artist_genre ag ON ag.artist_id = a.id
+        WHERE a.id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY a.id
+    </select>
+
+    <select id="countExisting" resultType="int">
+        SELECT COUNT(*) FROM artist
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>
