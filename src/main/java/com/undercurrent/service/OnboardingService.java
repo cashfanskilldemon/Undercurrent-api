@@ -38,12 +38,20 @@ public class OnboardingService {
             "DJ", "录音师", "乐评人", "场地主理人");
     private static final List<String> AGE_GROUPS =
             List.of("18 岁以下", "18-24", "25-30", "31-40", "40 岁以上");
+    private static final List<String> GENDERS = List.of(
+            "男", "女", "其他", "保密",
+            "T", "P", "Le", "跨性别", "非二元", "无性别", "双性", "酷儿",
+            "猫", "机器人", "薛定谔", "沃尔玛塑料袋");
     private static final List<String> CITIES = List.of(
             "北京", "上海", "广州", "深圳", "成都", "重庆",
             "杭州", "武汉", "西安", "长沙", "乌鲁木齐", "其他");
-    /** 防御性上限：就算前端被改也不至于一次写几百条 */
+    /** 防御性上限：就算前端被改也不至于一次写太多 */
     private static final int MAX_GENRES = 12;
-    private static final int MAX_ARTISTS = 30;
+    /**
+     * 艺人没有 UI 上限（八行一共 480 张卡都能点），这里必须高于可点总数，
+     * 否则用户选了 40 位只会存下 30 位，属于静默丢数据。
+     */
+    private static final int MAX_ARTISTS = 500;
     /** 引导页每个流派摆几位艺人（Web 宽屏按流派分行横向滑动，8 类 × 60 = 480 张卡） */
     private static final int ARTISTS_PER_CATEGORY = 60;
 
@@ -68,6 +76,7 @@ public class OnboardingService {
         vo.setArtists(pickArtists(artistMapper.selectForOnboarding(ARTISTS_PER_CATEGORY)));
         vo.setRoles(ROLES);
         vo.setAgeGroups(AGE_GROUPS);
+        vo.setGenders(GENDERS);
         vo.setCities(CITIES);
 
         vo.setSelectedGenres(userMapper.selectInterestRefs(userId, KIND_GENRE));
@@ -81,7 +90,15 @@ public class OnboardingService {
         }
         vo.setSelectedArtistIds(artistIds);
         vo.setCurrentRole(state.getRole());
-        vo.setCurrentAgeGroup(state.getAgeGroup());
+        String rawAge = state.getAgeGroup();
+        vo.setCurrentAgeGroup(rawAge);
+        try {
+            vo.setCurrentAge(rawAge == null || rawAge.isBlank() ? null : Integer.valueOf(rawAge.trim()));
+        } catch (NumberFormatException ignored) {
+            // 历史数据存的是年龄段，不是数字
+            vo.setCurrentAge(null);
+        }
+        vo.setCurrentGender(state.getGender());
         vo.setCurrentCity(state.getCity());
         return vo;
     }
@@ -94,7 +111,7 @@ public class OnboardingService {
         }
         boolean skipped = request == null || Boolean.TRUE.equals(request.getSkipped());
         if (skipped) {
-            userMapper.updateOnboardingProfile(userId, null, null, null);
+            userMapper.updateOnboardingProfile(userId, null, null, null, null);
             return load(userId);
         }
 
@@ -105,8 +122,19 @@ public class OnboardingService {
         }
 
         String role = pick(request.getRole(), ROLES);
-        String ageGroup = pick(request.getAgeGroup(), AGE_GROUPS);
-        String city = pick(request.getCity(), CITIES);
+        Integer age = request.getAge();
+        String ageGroup;
+        if (age != null) {
+            if (age < 1 || age > 120) {
+                throw new BusinessException(400, "年龄需在 1 到 120 之间");
+            }
+            // 复用 age_group 列存准确年龄（字符串），无需加列迁移
+            ageGroup = String.valueOf(age);
+        } else {
+            ageGroup = pick(request.getAgeGroup(), AGE_GROUPS);
+        }
+        String city = sanitizeCity(request.getCity());
+        String gender = pick(request.getGender(), GENDERS);
 
         // 覆盖式保存：先清空再写入，重复提交不会累积
         userMapper.deleteInterests(userId);
@@ -116,7 +144,7 @@ public class OnboardingService {
         for (Long artistId : artistIds) {
             userMapper.insertInterest(userId, KIND_ARTIST, String.valueOf(artistId));
         }
-        userMapper.updateOnboardingProfile(userId, role, city, ageGroup);
+        userMapper.updateOnboardingProfile(userId, role, city, ageGroup, gender);
         return load(userId);
     }
 
@@ -214,5 +242,14 @@ public class OnboardingService {
         }
         String trimmed = value.trim();
         return allowed.contains(trimmed) ? trimmed : null;
+    }
+
+    /** 城市由前端给完整列表，后端只做长度/空白校验，避免两边重复维护白名单 */
+    private String sanitizeCity(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() || trimmed.length() > 50 ? null : trimmed;
     }
 }

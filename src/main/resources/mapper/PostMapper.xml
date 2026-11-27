@@ -22,6 +22,7 @@
             <result property="name" column="author_name"/>
             <result property="handle" column="author_handle"/>
             <result property="hue" column="author_hue"/>
+            <result property="avatar" column="author_avatar"/>
             <result property="city" column="author_city"/>
             <result property="role" column="author_role"/>
             <result property="verified" column="author_verified"/>
@@ -48,11 +49,11 @@
         t.pinned, t.created_at, t.attachment_kind, t.attachment_track_id, t.image,
         c.name AS channel_name,
         a.id AS author_id, a.nickname AS author_name, a.handle AS author_handle,
-        a.avatar_hue AS author_hue, a.city AS author_city, a.role AS author_role,
+        a.avatar_hue AS author_hue, a.avatar AS author_avatar, a.city AS author_city, a.role AS author_role,
         a.verified AS author_verified, a.followers_count AS author_followers,
-        (SELECT GROUP_CONCAT(tt.tag ORDER BY tt.tag) FROM post_tag tt WHERE tt.thread_id = t.id) AS tags,
-        EXISTS(SELECT 1 FROM post_like lk WHERE lk.thread_id = t.id AND lk.user_id = #{viewerId}) AS liked,
-        EXISTS(SELECT 1 FROM post_save sv WHERE sv.thread_id = t.id AND sv.user_id = #{viewerId}) AS saved,
+        (SELECT GROUP_CONCAT(tt.tag ORDER BY tt.tag) FROM post_tag tt WHERE tt.post_id = t.id) AS tags,
+        EXISTS(SELECT 1 FROM post_like lk WHERE lk.post_id = t.id AND lk.user_id = #{viewerId}) AS liked,
+        EXISTS(SELECT 1 FROM post_save sv WHERE sv.post_id = t.id AND sv.user_id = #{viewerId}) AS saved,
         tr.title AS att_title, tr.cover AS att_cover,
         tr.duration_sec AS att_duration, tr.bpm AS att_bpm
     </sql>
@@ -71,7 +72,7 @@
                 AND t.body LIKE CONCAT('%', #{keyword}, '%')
             </if>
             <if test="tag != null and tag != ''">
-                AND EXISTS(SELECT 1 FROM post_tag tt2 WHERE tt2.thread_id = t.id AND tt2.tag = #{tag})
+                AND EXISTS(SELECT 1 FROM post_tag tt2 WHERE tt2.post_id = t.id AND tt2.tag = #{tag})
             </if>
             <if test="following != null and following and viewerId != null">
                 AND (t.author_id = #{viewerId}
@@ -113,6 +114,7 @@
             <result property="name" column="author_name"/>
             <result property="handle" column="author_handle"/>
             <result property="hue" column="author_hue"/>
+            <result property="avatar" column="author_avatar"/>
             <result property="city" column="author_city"/>
             <result property="role" column="author_role"/>
             <result property="verified" column="author_verified"/>
@@ -122,12 +124,12 @@
     <select id="selectReplies" resultMap="ReplyVOMap">
         SELECT r.id, r.parent_id, r.body, r.likes_count, r.created_at,
                a.id AS author_id, a.nickname AS author_name, a.handle AS author_handle,
-               a.avatar_hue AS author_hue, a.city AS author_city, a.role AS author_role,
+               a.avatar_hue AS author_hue, a.avatar AS author_avatar, a.city AS author_city, a.role AS author_role,
                a.verified AS author_verified,
                EXISTS(SELECT 1 FROM reply_like rl WHERE rl.reply_id = r.id AND rl.user_id = #{viewerId}) AS liked
         FROM post_reply r
         JOIN app_user a ON a.id = r.author_id
-        WHERE r.thread_id = #{threadId}
+        WHERE r.post_id = #{postId}
         ORDER BY r.created_at ASC
     </select>
 
@@ -138,9 +140,9 @@
     </insert>
 
     <insert id="insertTags">
-        INSERT INTO post_tag (thread_id, tag) VALUES
+        INSERT INTO post_tag (post_id, tag) VALUES
         <foreach collection="tags" item="tag" separator=",">
-            (#{threadId}, #{tag})
+            (#{postId}, #{tag})
         </foreach>
     </insert>
 
@@ -153,23 +155,23 @@
     </update>
 
     <insert id="insertLike">
-        INSERT IGNORE INTO post_like (user_id, thread_id) VALUES (#{userId}, #{threadId})
+        INSERT IGNORE INTO post_like (user_id, post_id) VALUES (#{userId}, #{postId})
     </insert>
 
     <delete id="deleteLike">
-        DELETE FROM post_like WHERE user_id = #{userId} AND thread_id = #{threadId}
+        DELETE FROM post_like WHERE user_id = #{userId} AND post_id = #{postId}
     </delete>
 
     <select id="existsLike" resultType="int">
-        SELECT COUNT(*) FROM post_like WHERE user_id = #{userId} AND thread_id = #{threadId}
+        SELECT COUNT(*) FROM post_like WHERE user_id = #{userId} AND post_id = #{postId}
     </select>
 
     <insert id="insertSave">
-        INSERT IGNORE INTO post_save (user_id, thread_id) VALUES (#{userId}, #{threadId})
+        INSERT IGNORE INTO post_save (user_id, post_id) VALUES (#{userId}, #{postId})
     </insert>
 
     <delete id="deleteSave">
-        DELETE FROM post_save WHERE user_id = #{userId} AND thread_id = #{threadId}
+        DELETE FROM post_save WHERE user_id = #{userId} AND post_id = #{postId}
     </delete>
 
     <select id="selectLikesCount" resultType="int">
@@ -177,6 +179,6 @@
     </select>
 
     <select id="existsSave" resultType="int">
-        SELECT COUNT(*) FROM post_save WHERE user_id = #{userId} AND thread_id = #{threadId}
+        SELECT COUNT(*) FROM post_save WHERE user_id = #{userId} AND post_id = #{postId}
     </select>
 </mapper>

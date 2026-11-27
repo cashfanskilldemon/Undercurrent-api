@@ -45,8 +45,8 @@ await check('GET  /api/meta', async () => {
   return `流派${d.genres.length} 频道${d.channels.length} 分类${d.categories.length} 标签${d.tags.length}`;
 });
 
-await check('GET  /api/threads', async () => {
-  const { status, json } = await api('GET', '/api/threads?page=1&size=5');
+await check('GET  /api/posts', async () => {
+  const { status, json } = await api('GET', '/api/posts?page=1&size=5');
   must(status === 200 && json?.code === 0, `HTTP ${status}`);
   const d = json.data;
   must(Array.isArray(d.list) && d.list.length > 0, '列表为空');
@@ -54,39 +54,39 @@ await check('GET  /api/threads', async () => {
   return `${d.list.length} 条 / 共 ${d.total}，首条「${d.list[0].author.name}」`;
 });
 
-await check('GET  /api/threads/{id}', async () => {
-  const { json } = await api('GET', '/api/threads/1');
+await check('GET  /api/posts/{id}', async () => {
+  const { json } = await api('GET', '/api/posts/1');
   must(json?.code === 0, '返回失败');
   const d = json.data;
   return `#${d.id} 回复 ${d.replies.length} 条，附件 ${d.attachment ? d.attachment.kind : '无'}`;
 });
 
-await check('GET  /api/threads?channel=', async () => {
-  const { json } = await api('GET', '/api/threads?channel=' + encodeURIComponent('闲聊'));
+await check('GET  /api/posts?channel=', async () => {
+  const { json } = await api('GET', '/api/posts?channel=' + encodeURIComponent('闲聊'));
   must(json?.code === 0, '返回失败');
   must(json.data.list.every((x) => x.channel === '闲聊'), '频道过滤不生效');
   return `${json.data.list.length} 条全部属于「闲聊」`;
 });
 
-await check('POST /api/threads/{id}/like 开关', async () => {
-  const on = await api('POST', '/api/threads/1/like', { user: USER });
-  const off = await api('POST', '/api/threads/1/like', { user: USER });
+await check('POST /api/posts/{id}/like 开关', async () => {
+  const on = await api('POST', '/api/posts/1/like', { user: USER });
+  const off = await api('POST', '/api/posts/1/like', { user: USER });
   must(on.json?.data?.liked === true, '第一次未点赞');
   must(off.json?.data?.liked === false, '第二次未取消');
   must(on.json.data.likes === off.json.data.likes + 1, '计数未正确回滚');
   return `赞 → ${on.json.data.likes} → 取消 ${off.json.data.likes}（已还原）`;
 });
 
-await check('POST /api/threads/{id}/save 开关', async () => {
-  const on = await api('POST', '/api/threads/1/save', { user: USER });
-  const off = await api('POST', '/api/threads/1/save', { user: USER });
+await check('POST /api/posts/{id}/save 开关', async () => {
+  const on = await api('POST', '/api/posts/1/save', { user: USER });
+  const off = await api('POST', '/api/posts/1/save', { user: USER });
   must(on.json?.data?.saved === true && off.json?.data?.saved === false, '收藏开关异常');
   return '收藏/取消均正常（已还原）';
 });
 
-await check('POST /api/threads 校验拦截', async () => {
+await check('POST /api/posts 校验拦截', async () => {
   // 约定：业务失败也走 HTTP 200，靠响应体 code 区分（见 README「统一响应体」）
-  const { json } = await api('POST', '/api/threads', { user: USER, body: { body: '' } });
+  const { json } = await api('POST', '/api/posts', { user: USER, body: { body: '' } });
   must(json?.code === 400, `期望 code=400，实际 ${json?.code}`);
   return `空正文被拦截：${json.message}`;
 });

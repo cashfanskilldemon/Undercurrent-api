@@ -34,10 +34,10 @@ CREATE TABLE IF NOT EXISTS notification (
 
 -- 3) 通知假数据：以用户 2（潮汐线 / tideline）为接收者，对齐 Web 版 6 条
 INSERT INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at)
-SELECT 2, 5, 'like',    '低压槽 赞了你在「地铁末班」下的回复', '/threads/1', 0, DATE_SUB(NOW(), INTERVAL 12 MINUTE)
+SELECT 2, 5, 'like',    '低压槽 赞了你在「地铁末班」下的回复', '/post/1', 0, DATE_SUB(NOW(), INTERVAL 12 MINUTE)
 WHERE NOT EXISTS (SELECT 1 FROM notification WHERE recipient_id = 2 AND type = 'like' AND body LIKE '%地铁末班%');
 INSERT INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at)
-SELECT 2, 8, 'reply',   '磁带回收站 回复了你：采样清版权这事，早点做完比事后补救便宜', '/threads/2', 0, DATE_SUB(NOW(), INTERVAL 48 MINUTE)
+SELECT 2, 8, 'reply',   '磁带回收站 回复了你：采样清版权这事，早点做完比事后补救便宜', '/post/2', 0, DATE_SUB(NOW(), INTERVAL 48 MINUTE)
 WHERE NOT EXISTS (SELECT 1 FROM notification WHERE recipient_id = 2 AND type = 'reply' AND body LIKE '%磁带回收站%');
 INSERT INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at)
 SELECT 2, 3, 'follow',  '灰烬 关注了你', '/u/ashe.mp3', 0, DATE_SUB(NOW(), INTERVAL 2 HOUR)
@@ -46,7 +46,7 @@ INSERT INTO notification (recipient_id, actor_id, type, body, href, is_read, cre
 SELECT 2, NULL, 'system','本周地下榜更新：8 首新作品进入榜单', '/tracks', 0, DATE_SUB(NOW(), INTERVAL 5 HOUR)
 WHERE NOT EXISTS (SELECT 1 FROM notification WHERE recipient_id = 2 AND type = 'system' AND body LIKE '%地下榜%');
 INSERT INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at)
-SELECT 2, 1, 'like',    '阿鬼 赞了你的帖子', '/threads', 0, DATE_SUB(NOW(), INTERVAL 1 DAY)
+SELECT 2, 1, 'like',    '阿鬼 赞了你的帖子', '/posts', 0, DATE_SUB(NOW(), INTERVAL 1 DAY)
 WHERE NOT EXISTS (SELECT 1 FROM notification WHERE recipient_id = 2 AND type = 'like' AND body LIKE '%阿鬼%');
 INSERT INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at)
 SELECT 2, NULL, 'system','Soot 1.4.2 已发布，插件区可直接下载', '/plugins', 0, DATE_SUB(NOW(), INTERVAL 2 DAY)

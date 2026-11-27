@@ -20,6 +20,7 @@ public class OnboardingVO {
     private List<ArtistVO> artists;
     private List<String> roles;
     private List<String> ageGroups;
+    private List<String> genders;
     private List<String> cities;
 
     /** 已选的流派 / 艺人 id */
@@ -28,6 +29,9 @@ public class OnboardingVO {
     /** 当前资料里的身份 / 年龄段 / 城市 */
     private String currentRole;
     private String currentAgeGroup;
+    /** 若当前存的是准确年龄，这里回传数字；旧数据为 null */
+    private Integer currentAge;
+    private String currentGender;
     private String currentCity;
 
     /** 分类 + 该分类下的流派名 */

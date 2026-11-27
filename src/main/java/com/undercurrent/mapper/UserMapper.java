@@ -47,7 +47,7 @@ public interface UserMapper {
     /** 引导里选中的艺人是否都还存在（防止提交脏 id） */
     int countExistingUsers(@Param("ids") List<Long> ids);
 
-    /** 引导状态：role / city / age_group / onboarded_at */
+    /** 引导状态：role / city / age_group / gender / onboarded_at */
     User selectOnboardingState(@Param("id") Long id);
 
     /** 某个用户某类偏好（kind = genre / artist） */
@@ -59,9 +59,25 @@ public interface UserMapper {
                        @Param("kind") String kind,
                        @Param("ref") String ref);
 
-    /** 写回身份/城市/年龄段，并标记引导已走过 */
+    /** 写回身份/城市/年龄/性别，并标记引导已走过 */
     int updateOnboardingProfile(@Param("id") Long id,
                                 @Param("role") String role,
                                 @Param("city") String city,
-                                @Param("ageGroup") String ageGroup);
+                                @Param("ageGroup") String ageGroup,
+                                @Param("gender") String gender);
+
+    /** 个人主页编辑资料：昵称、简介、城市 */
+    int updateProfile(@Param("id") Long id,
+                      @Param("nickname") String nickname,
+                      @Param("bio") String bio,
+                      @Param("city") String city);
+
+    /** 设置 / 清除头像路径（null 表示移除） */
+    int updateAvatar(@Param("id") Long id, @Param("avatar") String avatar);
+
+    /** 指定时间点之后的改名次数（14 天内最多 2 次） */
+    int countNameChangesSince(@Param("id") Long id, @Param("since") java.time.LocalDateTime since);
+
+    /** 记录一次改名 */
+    int insertNameChange(@Param("id") Long id);
 }

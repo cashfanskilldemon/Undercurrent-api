@@ -17,9 +17,11 @@ CREATE TABLE IF NOT EXISTS app_user (
   email           VARCHAR(120)        NULL                COMMENT '邮箱，注册与找回密码用',
   nickname        VARCHAR(50)     NOT NULL                COMMENT '昵称，对应前端 name',
   avatar_hue      SMALLINT UNSIGNED NOT NULL DEFAULT 0    COMMENT '头像色相 0-360，前端据此生成色块',
+  avatar          VARCHAR(200)     NULL                COMMENT '头像路径 /avatars/{id}.jpg，NULL 用色块',
   city            VARCHAR(50)         NULL                COMMENT '城市',
   role            VARCHAR(20)     NOT NULL DEFAULT '听众'  COMMENT '音乐人/制作人/插件作者/听众',
-  age_group       VARCHAR(20)         NULL                COMMENT '年龄段：18 岁以下/18-24/25-30/31-40/40 岁以上',
+  age_group       VARCHAR(20)         NULL                COMMENT '年龄段：18 岁以下/18-24/25-30/31-40/40 岁以上（现也存准确年龄）',
+  gender          VARCHAR(10)         NULL                COMMENT '性别/自我认同：男/女/其他/T/Le/沃尔玛塑料袋等',
   bio             VARCHAR(255)        NULL                COMMENT '简介',
   followers_count INT UNSIGNED    NOT NULL DEFAULT 0      COMMENT '粉丝数（冗余，便于排序）',
   following_count INT UNSIGNED    NOT NULL DEFAULT 0      COMMENT '关注数',
@@ -150,22 +152,22 @@ CREATE TABLE IF NOT EXISTS post (
 ) ENGINE=InnoDB COMMENT='讨论帖';
 
 CREATE TABLE IF NOT EXISTS post_tag (
-  thread_id BIGINT UNSIGNED NOT NULL,
+  post_id BIGINT UNSIGNED NOT NULL,
   tag       VARCHAR(30)     NOT NULL,
-  PRIMARY KEY (thread_id, tag),
+  PRIMARY KEY (post_id, tag),
   KEY (tag)
 ) ENGINE=InnoDB COMMENT='帖子标签';
 
 CREATE TABLE IF NOT EXISTS post_reply (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  thread_id   BIGINT UNSIGNED NOT NULL,
+  post_id   BIGINT UNSIGNED NOT NULL,
   author_id   BIGINT UNSIGNED NOT NULL,
   parent_id   BIGINT UNSIGNED      NULL COMMENT '楼中楼父回复',
   body        TEXT            NOT NULL,
   likes_count INT UNSIGNED    NOT NULL DEFAULT 0,
   created_at  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  KEY (thread_id, created_at),
+  KEY (post_id, created_at),
   KEY (parent_id),
   KEY (author_id)
 ) ENGINE=InnoDB COMMENT='帖子回复';
@@ -175,18 +177,18 @@ CREATE TABLE IF NOT EXISTS post_reply (
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS post_like (
   user_id    BIGINT UNSIGNED NOT NULL,
-  thread_id  BIGINT UNSIGNED NOT NULL,
+  post_id  BIGINT UNSIGNED NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (user_id, thread_id),
-  KEY (thread_id)
+  PRIMARY KEY (user_id, post_id),
+  KEY (post_id)
 ) ENGINE=InnoDB COMMENT='帖子点赞';
 
 CREATE TABLE IF NOT EXISTS post_save (
   user_id    BIGINT UNSIGNED NOT NULL,
-  thread_id  BIGINT UNSIGNED NOT NULL,
+  post_id  BIGINT UNSIGNED NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (user_id, thread_id),
-  KEY (thread_id)
+  PRIMARY KEY (user_id, post_id),
+  KEY (post_id)
 ) ENGINE=InnoDB COMMENT='帖子收藏';
 
 CREATE TABLE IF NOT EXISTS track_like (
@@ -214,6 +216,16 @@ CREATE TABLE IF NOT EXISTS user_follow (
 ) ENGINE=InnoDB COMMENT='关注关系';
 
 -- ------------------------------------------------------------
+-- 改名字记录（14 天内最多 2 次）
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS user_name_change (
+  id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id    BIGINT UNSIGNED NOT NULL,
+  changed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY (user_id, changed_at)
+) ENGINE=InnoDB COMMENT='用户改名记录，用于 14 天两次限制';
+
+-- ------------------------------------------------------------
 -- 7. 标签统计（右栏「推荐关注」的话题热度）
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS tag_stat (
@@ -232,7 +244,7 @@ CREATE TABLE IF NOT EXISTS notification (
   actor_id    BIGINT UNSIGNED      NULL COMMENT '触发者用户，system 类为 NULL',
   type        VARCHAR(20)     NOT NULL COMMENT 'like / reply / follow / system',
   body        VARCHAR(255)    NOT NULL COMMENT '通知文案',
-  href        VARCHAR(120)         NULL COMMENT '点击跳转地址，如 /threads/1',
+  href        VARCHAR(120)         NULL COMMENT '点击跳转地址，如 /post/1',
   is_read     TINYINT(1)      NOT NULL DEFAULT 0,
   created_at  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -318,3 +330,14 @@ CREATE TABLE IF NOT EXISTS artist_genre (
   PRIMARY KEY (artist_id, category),
   KEY (category, sort_order)
 ) ENGINE=InnoDB COMMENT='艺人所属流派';
+
+CREATE TABLE IF NOT EXISTS user_link (
+  id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  user_id     BIGINT UNSIGNED NOT NULL COMMENT '所属用户 id',
+  url         VARCHAR(500)    NOT NULL COMMENT '完整链接地址',
+  title       VARCHAR(60)         NULL COMMENT '显示标题，为空时显示域名',
+  sort_order  INT             NOT NULL DEFAULT 0 COMMENT '展示顺序',
+  created_at  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY (user_id, sort_order)
+) ENGINE=InnoDB COMMENT='个人主页外部链接';

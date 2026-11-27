@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/threads")
+@RequestMapping("/api/posts")
 @RequiredArgsConstructor
 public class PostController {
 
@@ -20,7 +20,7 @@ public class PostController {
 
     /**
      * 讨论列表
-     * GET /api/threads?channel=作品反馈&keyword=&tag=&page=1&size=20
+     * GET /api/posts?channel=作品反馈&keyword=&tag=&page=1&size=20
      * 「全部」或省略 channel 表示不按频道过滤
      */
     @GetMapping

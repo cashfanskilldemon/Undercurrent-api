@@ -50,7 +50,7 @@ public class TokenAuthFilter extends OncePerRequestFilter {
         if (authorization != null && authorization.startsWith(BEARER)) {
             Long userId = tokenService.verify(authorization.substring(BEARER.length()).trim());
             if (userId == null) {
-                unauthorized(response);
+                unauthorized(request, response);
                 return;
             }
             chain.doFilter(new UserIdRequest(request, String.valueOf(userId)), response);
@@ -60,7 +60,14 @@ public class TokenAuthFilter extends OncePerRequestFilter {
         chain.doFilter(new UserIdRequest(request, allowHeaderFallback ? null : ""), response);
     }
 
-    private void unauthorized(HttpServletResponse response) throws IOException {
+    private void unauthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // Filter 在 CORS 处理之前，手动补 CORS 头，否则浏览器把 401 当成 Failed to fetch
+        String origin = request.getHeader("Origin");
+        if (origin != null && (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:"))) {
+            response.setHeader("Access-Control-Allow-Origin", origin);
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Vary", "Origin");
+        }
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write("{\"code\":401,\"message\":\"登录已过期，请重新登录\"}");

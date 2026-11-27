@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class PostReply {
     private Long id;
-    private Long threadId;
+    private Long postId;
     private Long authorId;
     private Long parentId;
     private String body;

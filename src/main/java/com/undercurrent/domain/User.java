@@ -15,10 +15,14 @@ public class User {
     private String email;
     private String nickname;
     private Integer avatarHue;
+    /** 头像图片路径，如 /avatars/11.jpg；null 表示用 avatar_hue 色块占位 */
+    private String avatar;
     private String city;
     private String role;
-    /** 年龄段：18 岁以下 / 18-24 / 25-30 / 31-40 / 40 岁以上 */
+    /** 年龄段：18 岁以下 / 18-24 / 25-30 / 31-40 / 40 岁以上（现也存准确年龄） */
     private String ageGroup;
+    /** 性别：男 / 女 / 其他 / 保密 */
+    private String gender;
     private String bio;
     private Integer followersCount;
     private Integer followingCount;

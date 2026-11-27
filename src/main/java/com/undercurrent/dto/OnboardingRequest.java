@@ -16,8 +16,12 @@ public class OnboardingRequest {
     private List<Long> artistIds;
     /** 身份：听众 / 制作人 / 音乐人 / 插件作者 */
     private String role;
-    /** 年龄段：18 岁以下 / 18-24 / 25-30 / 31-40 / 40 岁以上 */
+    /** 准确年龄（由数学魔术解码得到），优先于 ageGroup */
+    private Integer age;
+    /** 兼容旧客户端的年龄段 */
     private String ageGroup;
+    /** 性别：男 / 女 / 其他 / 保密 */
+    private String gender;
     private String city;
     private Boolean skipped;
 }

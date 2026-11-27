@@ -9,6 +9,8 @@ public class UserVO {
     private String name;
     private String handle;
     private Integer hue;
+    /** 头像图片路径；null 表示色块占位 */
+    private String avatar;
     private String city;
     private String role;
     private Boolean verified;

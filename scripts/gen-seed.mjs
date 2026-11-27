@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// mock 数据里键名仍是 threads（历史数据文件），生成的 SQL 已统一用 post
 const data = JSON.parse(fs.readFileSync(path.join(ROOT, '../Undercurrent-web/data/mock-data.json'), 'utf8'));
 
 const q = (s) => {
@@ -26,12 +27,12 @@ const idOf = (code) => Number(String(code).replace(/^[a-z]+/i, ''));
 
 const out = [];
 out.push('-- 初始化数据：由 data/mock-data.json 生成');
-out.push('USE undercurrent;');
+out.push('USE Undercurrent_test;');
 out.push('');
 out.push('SET FOREIGN_KEY_CHECKS = 0;');
-out.push('TRUNCATE TABLE thread_like; TRUNCATE TABLE thread_save; TRUNCATE TABLE track_like;');
-out.push('TRUNCATE TABLE reply_like; TRUNCATE TABLE user_follow; TRUNCATE TABLE thread_reply;');
-out.push('TRUNCATE TABLE thread_tag; TRUNCATE TABLE thread; TRUNCATE TABLE track_tag;');
+out.push('TRUNCATE TABLE post_like; TRUNCATE TABLE post_save; TRUNCATE TABLE track_like;');
+out.push('TRUNCATE TABLE reply_like; TRUNCATE TABLE user_follow; TRUNCATE TABLE post_reply;');
+out.push('TRUNCATE TABLE post_tag; TRUNCATE TABLE post; TRUNCATE TABLE track_tag;');
 out.push('TRUNCATE TABLE track; TRUNCATE TABLE plugin; TRUNCATE TABLE app_user;');
 out.push('TRUNCATE TABLE genre; TRUNCATE TABLE channel; TRUNCATE TABLE plugin_category;');
 out.push('TRUNCATE TABLE tag_stat;');
@@ -109,7 +110,7 @@ data.threads.forEach((th, i) => {
   const attachTrack = th.attachment && th.attachment.trackId ? idOf(th.attachment.trackId) : null;
   const attachKind = th.attachment ? th.attachment.kind : null;
   out.push(
-    `INSERT INTO thread (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (` +
+    `INSERT INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (` +
     `${i + 1}, ${idOf(th.authorId)}, ${chanId.get(th.channel) || 1}, ${q(th.body)}, ${num(th.likes)}, ${num(th.reposts)}, ${(th.replies || []).length}, ` +
     `${th.pinned ? 1 : 0}, ${q(attachKind)}, ${attachTrack ?? 'NULL'}, ${relTime(th.time)});`
   );
@@ -117,7 +118,7 @@ data.threads.forEach((th, i) => {
 out.push('');
 out.push('-- 帖子标签');
 data.threads.forEach((th, i) => {
-  (th.tags || []).forEach((tag) => out.push(`INSERT INTO thread_tag (thread_id, tag) VALUES (${i + 1}, ${q(tag)});`));
+  (th.tags || []).forEach((tag) => out.push(`INSERT INTO post_tag (post_id, tag) VALUES (${i + 1}, ${q(tag)});`));
 });
 out.push('');
 
@@ -128,7 +129,7 @@ data.threads.forEach((th, ti) => {
   (th.replies || []).forEach((r) => {
     replyId++;
     out.push(
-      `INSERT INTO thread_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (` +
+      `INSERT INTO post_reply (id, post_id, author_id, body, likes_count, created_at) VALUES (` +
       `${replyId}, ${ti + 1}, ${idOf(r.authorId)}, ${q(r.body)}, ${num(r.likes)}, ${relTime(r.time)});`
     );
   });

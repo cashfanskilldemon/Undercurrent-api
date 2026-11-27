@@ -25,6 +25,7 @@
             <result property="name" column="artist_name"/>
             <result property="handle" column="artist_handle"/>
             <result property="hue" column="artist_hue"/>
+            <result property="avatar" column="artist_avatar"/>
             <result property="city" column="artist_city"/>
             <result property="role" column="artist_role"/>
             <result property="verified" column="artist_verified"/>
@@ -37,7 +38,7 @@
         t.likes_count, t.comments_count, t.cover, t.blurb, t.spec_json, t.released_at,
         g.name AS genre_name,
         a.id AS artist_id, a.nickname AS artist_name, a.handle AS artist_handle,
-        a.avatar_hue AS artist_hue, a.city AS artist_city, a.role AS artist_role,
+        a.avatar_hue AS artist_hue, a.avatar AS artist_avatar, a.city AS artist_city, a.role AS artist_role,
         a.verified AS artist_verified, a.followers_count AS artist_followers,
         (SELECT GROUP_CONCAT(tt.tag ORDER BY tt.tag) FROM track_tag tt WHERE tt.track_id = t.id) AS tags,
         EXISTS(SELECT 1 FROM track_like lk WHERE lk.track_id = t.id AND lk.user_id = #{viewerId}) AS liked

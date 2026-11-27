@@ -28,28 +28,28 @@ public interface PostMapper {
 
     PostVO selectDetail(@Param("id") Long id, @Param("viewerId") Long viewerId);
 
-    List<ReplyVO> selectReplies(@Param("threadId") Long threadId, @Param("viewerId") Long viewerId);
+    List<ReplyVO> selectReplies(@Param("postId") Long postId, @Param("viewerId") Long viewerId);
 
-    int insert(Post thread);
+    int insert(Post post);
 
-    int insertTags(@Param("threadId") Long threadId, @Param("tags") List<String> tags);
+    int insertTags(@Param("postId") Long postId, @Param("tags") List<String> tags);
 
     /** 点赞数增减，delta 为 +1 / -1 */
     int addLikeCount(@Param("id") Long id, @Param("delta") int delta);
 
     int addReplyCount(@Param("id") Long id, @Param("delta") int delta);
 
-    int insertLike(@Param("userId") Long userId, @Param("threadId") Long threadId);
+    int insertLike(@Param("userId") Long userId, @Param("postId") Long postId);
 
-    int deleteLike(@Param("userId") Long userId, @Param("threadId") Long threadId);
+    int deleteLike(@Param("userId") Long userId, @Param("postId") Long postId);
 
-    int existsLike(@Param("userId") Long userId, @Param("threadId") Long threadId);
+    int existsLike(@Param("userId") Long userId, @Param("postId") Long postId);
 
-    int insertSave(@Param("userId") Long userId, @Param("threadId") Long threadId);
+    int insertSave(@Param("userId") Long userId, @Param("postId") Long postId);
 
-    int deleteSave(@Param("userId") Long userId, @Param("threadId") Long threadId);
+    int deleteSave(@Param("userId") Long userId, @Param("postId") Long postId);
 
-    int existsSave(@Param("userId") Long userId, @Param("threadId") Long threadId);
+    int existsSave(@Param("userId") Long userId, @Param("postId") Long postId);
 
     Integer selectLikesCount(@Param("id") Long id);
 }

@@ -27,6 +27,7 @@
             <result property="name" column="maker_name"/>
             <result property="handle" column="maker_handle"/>
             <result property="hue" column="maker_hue"/>
+            <result property="avatar" column="maker_avatar"/>
             <result property="verified" column="maker_verified"/>
         </association>
     </resultMap>
@@ -37,7 +38,7 @@
         p.tagline, p.description, p.updated_at,
         c.name AS category_name,
         a.id AS maker_id, a.nickname AS maker_name, a.handle AS maker_handle,
-        a.avatar_hue AS maker_hue, a.verified AS maker_verified
+        a.avatar_hue AS maker_hue, a.avatar AS maker_avatar, a.verified AS maker_verified
     </sql>
 
     <sql id="baseFrom">

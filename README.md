@@ -50,6 +50,9 @@ mysql -h 127.0.0.1 -u root -p --default-character-set=utf8mb4 < src/main/resourc
 | 5 | `migration-genre-category.sql` | 流派扩容到 126 个并加分类 |
 | 6 | `migration-onboarding.sql` | 引导字段与 `user_interest` 表 |
 | 7 | `migration-social.sql` | 私信会话 / 消息 / 拉黑表 |
+| 8 | `2026-11-27/migration-post-rename.sql` | 帖子相关列 `thread_id` → `post_id`、索引与通知 href 同步 |
+| 9 | `2026-11-27/migration-avatar.sql` | 用户头像路径列 `avatar` |
+| 10 | `2026-11-27/migration-name-limit.sql` | 改名记录表 `user_name_change`（14 天内最多改 2 次） |
 
 > 库名 `Undercurrent_test` 首字母大写，Linux 上 MySQL 区分大小写。
 > `--default-character-set=utf8mb4` 不要省略，否则中文会变问号。
@@ -126,11 +129,11 @@ mvn clean package -DskipTests && java -jar target/undercurrent-api-1.0.0.jar
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| GET | `/api/threads?channel=&keyword=&tag=&following=&page=1&size=20` | 列表；`channel` 传「全部」或省略表示不过滤，`following=true` 只看关注的人 |
-| GET | `/api/threads/{id}` | 详情，含 `replies` |
-| POST | `/api/threads` | 发帖 |
-| POST | `/api/threads/{id}/like` | 点赞 / 取消，返回 `{liked, likes}` |
-| POST | `/api/threads/{id}/save` | 收藏 / 取消，返回 `{saved}` |
+| GET | `/api/posts?channel=&keyword=&tag=&following=&page=1&size=20` | 列表；`channel` 传「全部」或省略表示不过滤，`following=true` 只看关注的人 |
+| GET | `/api/posts/{id}` | 详情，含 `replies` |
+| POST | `/api/posts` | 发帖 |
+| POST | `/api/posts/{id}/like` | 点赞 / 取消，返回 `{liked, likes}` |
+| POST | `/api/posts/{id}/save` | 收藏 / 取消，返回 `{saved}` |
 
 发帖请求体：
 
@@ -194,6 +197,9 @@ mvn clean package -DskipTests && java -jar target/undercurrent-api-1.0.0.jar
 | GET | `/api/users/suggested?q=&limit=12` | 推荐关注 / 艺人搜索 |
 | GET | `/api/users/{id}` | 用户资料 |
 | GET | `/api/users/by-handle/{handle}` | 按 handle 查资料 |
+| PUT | `/api/users/{id}` | 编辑自己的资料：`{nickname, bio, city}`，仅本人可改 |
+| POST | `/api/users/{id}/avatar` | 上传头像（JSON `{data: base64}`，兼容 `data:image/...` 前缀，JPG/PNG/WebP/GIF ≤3MB，仅本人） |
+| DELETE | `/api/users/{id}/avatar` | 移除头像，回退色块占位 |
 | POST | `/api/users/{id}/follow` | 关注 / 取关切换 |
 
 ### 通知
@@ -244,7 +250,7 @@ mvn clean package -DskipTests && java -jar target/undercurrent-api-1.0.0.jar
 - 不带 token 时 `X-User-Id` 默认不被信任（`allow-header-fallback=false`），本地裸调接口时用 `AUTH_ALLOW_HEADER_FALLBACK=true` 启动：
 
 ```bash
-curl -H "X-User-Id: 1" -X POST http://localhost:8080/api/threads/1/like
+curl -H "X-User-Id: 1" -X POST http://localhost:8080/api/posts/1/like
 ```
 
 - 密码使用 **BCrypt cost 12**（只引入 `spring-security-crypto`，不启用整套 Security 过滤链）；旧 `pbkdf2$...` 记录仍可校验，登录成功时自动升级。

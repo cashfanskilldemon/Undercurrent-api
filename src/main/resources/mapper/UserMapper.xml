@@ -8,6 +8,7 @@
         <result property="name" column="nickname"/>
         <result property="handle" column="handle"/>
         <result property="hue" column="avatar_hue"/>
+        <result property="avatar" column="avatar"/>
         <result property="city" column="city"/>
         <result property="role" column="role"/>
         <result property="bio" column="bio"/>
@@ -16,15 +17,15 @@
         <result property="following" column="following_count"/>
         <result property="followed" column="followed"/>
         <result property="tracks" column="track_count"/>
-        <result property="threads" column="thread_count"/>
+        <result property="posts" column="post_count"/>
     </resultMap>
 
     <sql id="profileColumns">
-        u.id, u.nickname, u.handle, u.avatar_hue, u.city, u.role, u.bio,
+        u.id, u.nickname, u.handle, u.avatar_hue, u.avatar, u.city, u.role, u.bio,
         u.verified, u.followers_count, u.following_count,
         EXISTS(SELECT 1 FROM user_follow f WHERE f.follower_id = #{viewerId} AND f.followee_id = u.id) AS followed,
         (SELECT COUNT(*) FROM track t WHERE t.artist_id = u.id) AS track_count,
-        (SELECT COUNT(*) FROM post th WHERE th.author_id = u.id) AS thread_count
+        (SELECT COUNT(*) FROM post th WHERE th.author_id = u.id) AS post_count
     </sql>
 
     <select id="selectSuggested" resultMap="UserProfileMap">
@@ -56,7 +57,7 @@
 
     <!-- 登录：不过滤 status，交给 Service 区分「密码错」和「账号禁用」；账号或手机号都能匹配 -->
     <select id="selectAuthByAccount" resultType="com.undercurrent.domain.User">
-        SELECT id, handle, phone, email, nickname, avatar_hue, city, role, age_group, bio,
+        SELECT id, handle, phone, email, nickname, avatar_hue, avatar, city, role, age_group, bio,
                followers_count, following_count, verified, password_hash, status,
                created_at, updated_at, onboarded_at
         FROM app_user
@@ -109,7 +110,7 @@
     <!-- ========== 注册引导（onboarding） ========== -->
 
     <select id="selectOnboardingState" resultType="com.undercurrent.domain.User">
-        SELECT id, role, city, age_group, onboarded_at FROM app_user WHERE id = #{id}
+        SELECT id, role, city, age_group, gender, onboarded_at FROM app_user WHERE id = #{id}
     </select>
 
     <select id="countExistingUsers" resultType="int">
@@ -138,7 +139,33 @@
             <if test="role != null">role = #{role},</if>
             <if test="city != null">city = #{city},</if>
             <if test="ageGroup != null">age_group = #{ageGroup},</if>
+            <if test="gender != null">gender = #{gender},</if>
             onboarded_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateAvatar">
+        UPDATE app_user SET avatar = #{avatar}, updated_at = NOW() WHERE id = #{id}
+    </update>
+
+    <!-- 14 天改名限制：统计窗口内改名次数 + 记录一次 -->
+    <select id="countNameChangesSince" resultType="int">
+        SELECT COUNT(*) FROM user_name_change
+        WHERE user_id = #{id} AND changed_at &gt;= #{since}
+    </select>
+    <insert id="insertNameChange">
+        INSERT INTO user_name_change (user_id) VALUES (#{id})
+    </insert>
+
+    <!-- 个人主页编辑资料：只更新传入的非空字段，空字符串写入 NULL -->
+    <update id="updateProfile">
+        UPDATE app_user
+        <set>
+            <if test="nickname != null and nickname != ''">nickname = #{nickname},</if>
+            bio = #{bio},
+            city = #{city},
+            updated_at = NOW()
         </set>
         WHERE id = #{id}
     </update>

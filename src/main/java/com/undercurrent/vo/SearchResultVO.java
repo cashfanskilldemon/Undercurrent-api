@@ -10,12 +10,12 @@ public class SearchResultVO {
     private String q;
     private List<UserProfileVO> users;
     private List<TrackVO> tracks;
-    private List<PostVO> threads;
+    private List<PostVO> posts;
     private List<PluginVO> plugins;
 
     /** 结果总数（Jackson 会序列化为 total 字段） */
     public int getTotal() {
-        return size(users) + size(tracks) + size(threads) + size(plugins);
+        return size(users) + size(tracks) + size(posts) + size(plugins);
     }
 
     private static int size(List<?> list) {

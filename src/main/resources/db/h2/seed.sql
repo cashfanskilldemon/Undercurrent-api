@@ -213,33 +213,33 @@ INSERT IGNORE INTO post (id, author_id, channel_id, body, likes_count, reposts_c
 INSERT IGNORE INTO post (id, author_id, channel_id, body, likes_count, reposts_count, replies_count, pinned, attachment_kind, attachment_track_id, created_at) VALUES (7, 5, 1, '尝试了一首 72 BPM 的 dub，全程没有量化，延迟反馈手动拧的。这种不完美大家能接受吗，还是听起来就是不专业？', 76, 6, 1, 0, 'track', 5, DATEADD('DAY', -3, NOW()));
 
 -- 帖子标签
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (1, '求反馈');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (1, 'boombap');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (2, '版权');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (2, '采样');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (3, '插件更新');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (3, '免费');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (4, '演出');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (4, '杭州');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (5, '母带');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (5, 'LUFS');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (6, '磁带');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (6, '挖碟');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (7, 'dub');
-INSERT IGNORE INTO post_tag (thread_id, tag) VALUES (7, '求反馈');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (1, '求反馈');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (1, 'boombap');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (2, '版权');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (2, '采样');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (3, '插件更新');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (3, '免费');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (4, '演出');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (4, '杭州');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (5, '母带');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (5, 'LUFS');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (6, '磁带');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (6, '挖碟');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (7, 'dub');
+INSERT IGNORE INTO post_tag (post_id, tag) VALUES (7, '求反馈');
 
 -- 回复
-INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (1, 1, 5, '0:42 底鼓和贝斯在 60Hz 打架了，试试给贝斯做一个跟底鼓的侧链，或者底鼓往 50Hz 挪一点。', 48, DATEADD('HOUR', -1, NOW()));
-INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (2, 1, 4, '磁带的那层嘶声太好听了，别降噪。', 31, DATEADD('MINUTE', -58, NOW()));
-INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (3, 1, 9, '通勤路上循环第五遍了', 12, DATEADD('MINUTE', -22, NOW()));
-INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (4, 2, 8, '同意。我们做《旧货市场》系列就是因为被下架过两次，一段段去找版权方谈的。', 88, DATEADD('HOUR', -3, NOW()));
-INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (5, 2, 2, '小样随便采，正式发行前一定要清。这是底线。', 64, DATEADD('HOUR', -3, NOW()));
-INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (6, 2, 10, '能不能出一个版权清理的教程帖，置顶那种', 27, DATEADD('HOUR', -2, NOW()));
-INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (7, 3, 1, '老焊工yyds，新磁头放在鼓总线上直接出味道。', 22, DATEADD('HOUR', -5, NOW()));
-INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (8, 4, 10, '武汉，坐高铁过去！', 9, NOW());
-INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (9, 4, 9, '长沙 +1，求加场', 6, NOW());
-INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (10, 5, 5, '手机外放本来就放不出 60Hz 以下，加一点 120Hz 左右的谐波失真让耳朵「脑补」出低音。', 53, NOW());
-INSERT IGNORE INTO post_reply (id, thread_id, author_id, body, likes_count, created_at) VALUES (11, 7, 1, '地下要什么专业，这就是味道。', 19, DATEADD('DAY', -3, NOW()));
+INSERT IGNORE INTO post_reply (id, post_id, author_id, body, likes_count, created_at) VALUES (1, 1, 5, '0:42 底鼓和贝斯在 60Hz 打架了，试试给贝斯做一个跟底鼓的侧链，或者底鼓往 50Hz 挪一点。', 48, DATEADD('HOUR', -1, NOW()));
+INSERT IGNORE INTO post_reply (id, post_id, author_id, body, likes_count, created_at) VALUES (2, 1, 4, '磁带的那层嘶声太好听了，别降噪。', 31, DATEADD('MINUTE', -58, NOW()));
+INSERT IGNORE INTO post_reply (id, post_id, author_id, body, likes_count, created_at) VALUES (3, 1, 9, '通勤路上循环第五遍了', 12, DATEADD('MINUTE', -22, NOW()));
+INSERT IGNORE INTO post_reply (id, post_id, author_id, body, likes_count, created_at) VALUES (4, 2, 8, '同意。我们做《旧货市场》系列就是因为被下架过两次，一段段去找版权方谈的。', 88, DATEADD('HOUR', -3, NOW()));
+INSERT IGNORE INTO post_reply (id, post_id, author_id, body, likes_count, created_at) VALUES (5, 2, 2, '小样随便采，正式发行前一定要清。这是底线。', 64, DATEADD('HOUR', -3, NOW()));
+INSERT IGNORE INTO post_reply (id, post_id, author_id, body, likes_count, created_at) VALUES (6, 2, 10, '能不能出一个版权清理的教程帖，置顶那种', 27, DATEADD('HOUR', -2, NOW()));
+INSERT IGNORE INTO post_reply (id, post_id, author_id, body, likes_count, created_at) VALUES (7, 3, 1, '老焊工yyds，新磁头放在鼓总线上直接出味道。', 22, DATEADD('HOUR', -5, NOW()));
+INSERT IGNORE INTO post_reply (id, post_id, author_id, body, likes_count, created_at) VALUES (8, 4, 10, '武汉，坐高铁过去！', 9, NOW());
+INSERT IGNORE INTO post_reply (id, post_id, author_id, body, likes_count, created_at) VALUES (9, 4, 9, '长沙 +1，求加场', 6, NOW());
+INSERT IGNORE INTO post_reply (id, post_id, author_id, body, likes_count, created_at) VALUES (10, 5, 5, '手机外放本来就放不出 60Hz 以下，加一点 120Hz 左右的谐波失真让耳朵「脑补」出低音。', 53, NOW());
+INSERT IGNORE INTO post_reply (id, post_id, author_id, body, likes_count, created_at) VALUES (11, 7, 1, '地下要什么专业，这就是味道。', 19, DATEADD('DAY', -3, NOW()));
 
 -- 标签热度
 INSERT IGNORE INTO tag_stat (tag, posts) VALUES ('求反馈', 1284);
@@ -251,11 +251,11 @@ INSERT IGNORE INTO tag_stat (tag, posts) VALUES ('演出', 276);
 INSERT IGNORE INTO tag_stat (tag, posts) VALUES ('磁带', 193);
 
 -- 站内通知（6 条，接收者=user 2）
-INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, 5, 'like', '低压槽 赞了你在「地铁末班」下的回复', '/threads/1', 0, DATEADD('MINUTE', -12, NOW()));
-INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, 8, 'reply', '磁带回收站 回复了你：采样清版权这事，早点做完比事后补救便宜', '/threads/2', 0, DATEADD('MINUTE', -48, NOW()));
+INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, 5, 'like', '低压槽 赞了你在「地铁末班」下的回复', '/post/1', 0, DATEADD('MINUTE', -12, NOW()));
+INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, 8, 'reply', '磁带回收站 回复了你：采样清版权这事，早点做完比事后补救便宜', '/post/2', 0, DATEADD('MINUTE', -48, NOW()));
 INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, 3, 'follow', '灰烬 关注了你', '/u/ashe.mp3', 0, DATEADD('HOUR', -2, NOW()));
 INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, NULL, 'system', '本周地下榜更新：8 首新作品进入榜单', '/tracks', 0, DATEADD('HOUR', -5, NOW()));
-INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, 1, 'like', '阿鬼 赞了你的帖子', '/threads', 0, DATEADD('DAY', -1, NOW()));
+INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, 1, 'like', '阿鬼 赞了你的帖子', '/posts', 0, DATEADD('DAY', -1, NOW()));
 INSERT IGNORE INTO notification (recipient_id, actor_id, type, body, href, is_read, created_at) VALUES (2, NULL, 'system', 'Soot 1.4.2 已发布，插件区可直接下载', '/plugins', 0, DATEADD('DAY', -2, NOW()));
 
 -- 关注关系：用户 2 关注 1/3/5/9，供首页关注流与发现页使用

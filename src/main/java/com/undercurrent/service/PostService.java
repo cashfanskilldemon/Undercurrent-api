@@ -90,38 +90,38 @@ public class PostService {
 
     /** 点赞切换，返回最新状态与计数 */
     @Transactional
-    public Map<String, Object> toggleLike(Long threadId, Long userId) {
+    public Map<String, Object> toggleLike(Long postId, Long userId) {
         if (userId == null) {
             throw new BusinessException(401, "请先登录");
         }
-        if (postMapper.selectLikesCount(threadId) == null) {
+        if (postMapper.selectLikesCount(postId) == null) {
             throw BusinessException.notFound("帖子");
         }
-        boolean liked = postMapper.existsLike(userId, threadId) > 0;
+        boolean liked = postMapper.existsLike(userId, postId) > 0;
         if (liked) {
-            postMapper.deleteLike(userId, threadId);
-            postMapper.addLikeCount(threadId, -1);
+            postMapper.deleteLike(userId, postId);
+            postMapper.addLikeCount(postId, -1);
         } else {
-            postMapper.insertLike(userId, threadId);
-            postMapper.addLikeCount(threadId, 1);
+            postMapper.insertLike(userId, postId);
+            postMapper.addLikeCount(postId, 1);
         }
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("liked", !liked);
-        r.put("likes", postMapper.selectLikesCount(threadId));
+        r.put("likes", postMapper.selectLikesCount(postId));
         return r;
     }
 
     /** 收藏切换 */
     @Transactional
-    public Map<String, Object> toggleSave(Long threadId, Long userId) {
+    public Map<String, Object> toggleSave(Long postId, Long userId) {
         if (userId == null) {
             throw new BusinessException(401, "请先登录");
         }
-        boolean saved = postMapper.existsSave(userId, threadId) > 0;
+        boolean saved = postMapper.existsSave(userId, postId) > 0;
         if (saved) {
-            postMapper.deleteSave(userId, threadId);
+            postMapper.deleteSave(userId, postId);
         } else {
-            postMapper.insertSave(userId, threadId);
+            postMapper.insertSave(userId, postId);
         }
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("saved", !saved);

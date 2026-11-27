@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.undercurrent.mapper.UserLinkMapper">
+
+    <select id="selectByUser" resultType="com.undercurrent.vo.UserLinkVO">
+        SELECT id, url, title FROM user_link
+        WHERE user_id = #{userId}
+        ORDER BY sort_order, id
+    </select>
+
+    <select id="countByUser" resultType="int">
+        SELECT COUNT(*) FROM user_link WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.undercurrent.domain.UserLink">
+        INSERT INTO user_link (user_id, url, title, sort_order)
+        VALUES (#{userId}, #{url}, #{title}, #{sortOrder})
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM user_link WHERE id = #{id} AND user_id = #{userId}
+    </delete>
+
+</mapper>
